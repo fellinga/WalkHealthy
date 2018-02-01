@@ -1,0 +1,13 @@
+- How much data (personal/walking history or otherwise) will be collected within the app?
+- How to sign in? App managed accounts, Facebook, Google?
+- How do you find a group? Search? Common interest, suggestions, similar routes? How to display?
+- How to identifier users? Screen name vs real name? Profile Pic?
+- Where to get campus database? Do users register their own university? How to prevent duplicates?
+- How to find meetups? Map? List? How do you search?
+- Is there a "friends list"?
+- How do you plan to monetize this app?
+- How do you determine a route? Plot on map or track user? Both?
+- How do you share routes? Most popular list, map, search, recommendations, user page?
+- How do you want to save routes? Locally or on a server? How many previous routes?
+- Does the app run in the background, or only when specifically open? Is it always tracking and recording a route after X distance, or does the user have to specific press a "start/stop" button?
+- Should a color scheme be specified?
