@@ -1,13 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
         android:id="@+id/action_settings"
-        android:icon="@drawable/ic_launcher_background"
-        android:title="Settings" />
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="Settings"
+        app:showAsAction="never" />
 
-    <!-- Settings, should always be in the overflow -->
-    <item android:id="@+id/action_logout"
+    <item
+        android:id="@+id/action_logout"
+        android:icon="@android:drawable/ic_lock_power_off"
         android:title="Logout"
         app:showAsAction="never" />
 
