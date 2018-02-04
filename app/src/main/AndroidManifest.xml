@@ -30,7 +30,11 @@
             android:label="@string/title_activity_register"></activity>
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:label="Settings"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".NewUserActivity"
+            android:label="@string/title_activity_newuser"></activity>
     </application>
 
 </manifest>

@@ -98,7 +98,7 @@ public class RegisterActivity extends Activity {
                                     .setDisplayName(username).build();
                             user.updateProfile(profileUpdates);
 
-                            openMainActivity(user);
+                            openNewUserActivity(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -109,8 +109,8 @@ public class RegisterActivity extends Activity {
                 });
     }
 
-    private void openMainActivity(FirebaseUser user) {
-        startActivity(new Intent(this , MainActivity.class));
+    private void openNewUserActivity(FirebaseUser user) {
+        startActivity(new Intent(this , NewUserActivity.class));
         finish();
     }
 
