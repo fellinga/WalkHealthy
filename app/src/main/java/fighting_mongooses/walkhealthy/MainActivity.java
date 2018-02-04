@@ -1,6 +1,7 @@
 package fighting_mongooses.walkhealthy;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,11 +11,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView txtName;
     private TextView txtEmail;
-    private Button btnLogout;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,15 +28,15 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+        mAuth = FirebaseAuth.getInstance();
+
         txtName = (TextView) findViewById(R.id.name);
         txtEmail = (TextView) findViewById(R.id.email);
 
-        String name = "Test";
-        String email = "User";
-
-        // Displaying the user details on the screen
-        txtName.setText(name);
+        String email = mAuth.getCurrentUser().getEmail();
         txtEmail.setText(email);
+        String name = mAuth.getCurrentUser().getDisplayName();
+        txtName.setText(name);
     }
 
     /**
@@ -41,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
      * */
     private void logoutUser() {
         // Launching the login activity
+        mAuth.signOut();
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
@@ -58,7 +63,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                // User chose the "Settings" item, show the app settings UI...
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
                 return true;
 
             case R.id.action_logout:
