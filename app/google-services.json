@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "516362633721",
+    "firebase_url": "https://walkhealthy-feb11.firebaseio.com",
+    "project_id": "walkhealthy-feb11",
+    "storage_bucket": "walkhealthy-feb11.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:516362633721:android:1f3b8fa4ae03e2c6",
+        "android_client_info": {
+          "package_name": "fighting_mongooses.walkhealthy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "516362633721-q6ukano0djuk6i29qhu5dhphqlr2pokh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fighting_mongooses.walkhealthy",
+            "certificate_hash": "3b968b4c906b7bc1277ba4737bee83f8cfffdbfd"
+          }
+        },
+        {
+          "client_id": "516362633721-bk8p15uep0gej1766dp91uvp5104gish.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd7BceEsvWIL_TvQO1DIYIo1Zf4mZu2N4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "516362633721-bk8p15uep0gej1766dp91uvp5104gish.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
