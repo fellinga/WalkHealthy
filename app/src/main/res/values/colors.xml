@@ -18,4 +18,12 @@
     <color name="lbl_name">#333333</color>
     <color name="btn_logout_bg">#ff6861</color>
 
+    <!-- Color values taken from ETSU website, here:
+        https://www.etsu.edu/univrela/identity/athletics/color_palette.php
+      @Jake Gillenwater -->
+    <color name="etsu_blue">#041E42</color>
+    <color name="etsu_gold">#FFC72C</color>
+    <color name="etsu_gray">#A2AAAD</color>
+    <color name="etsu_grey">#A2AAAD</color>
+
 </resources>
