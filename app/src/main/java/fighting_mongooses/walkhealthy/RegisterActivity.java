@@ -20,13 +20,11 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class RegisterActivity extends Activity {
 
-    private static final String TAG = RegisterActivity.class.getSimpleName();
     private Button btnRegister;
     private Button btnLinkToLogin;
     private EditText inputUsername;
     private EditText inputEmail;
     private EditText inputPassword;
-    private ProgressDialog pDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,10 +36,6 @@ public class RegisterActivity extends Activity {
         inputPassword = (EditText) findViewById(R.id.password);
         btnRegister = (Button) findViewById(R.id.btnRegister);
         btnLinkToLogin = (Button) findViewById(R.id.btnLinkToLoginScreen);
-
-        // Progress dialog
-        pDialog = new ProgressDialog(this);
-        pDialog.setCancelable(false);
 
         // Register Button Click event
         btnRegister.setOnClickListener(new View.OnClickListener() {
@@ -73,18 +67,8 @@ public class RegisterActivity extends Activity {
 
     }
 
-    private void showDialog() {
-        if (!pDialog.isShowing())
-            pDialog.show();
-    }
-
-    private void hideDialog() {
-        if (pDialog.isShowing())
-            pDialog.dismiss();
-    }
-
     private void createNewUser(final String email, final String password, final String username) {
-        final FirebaseAuth mAuth = FirebaseAuth.getInstance();;
+        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -92,16 +76,15 @@ public class RegisterActivity extends Activity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                     .setDisplayName(username).build();
                             user.updateProfile(profileUpdates);
+                            user.sendEmailVerification();
 
-                            openNewUserActivity(user);
+                            openNewUserActivity();
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             Toast.makeText(RegisterActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -109,7 +92,7 @@ public class RegisterActivity extends Activity {
                 });
     }
 
-    private void openNewUserActivity(FirebaseUser user) {
+    private void openNewUserActivity() {
         startActivity(new Intent(this , NewUserActivity.class));
         finish();
     }
