@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 android:layout_width="fill_parent"
 android:layout_height="fill_parent"
-android:background="@color/bg_login"
+android:background="@color/etsu_blue"
 android:gravity="center"
 android:orientation="vertical"
 android:padding="10dp" >
@@ -15,6 +15,13 @@ android:padding="10dp" >
     android:paddingLeft="20dp"
     android:paddingRight="20dp" >
 
+
+    <ImageView
+        android:id="@+id/logo_temp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/dummyLogo"/>
     <EditText
         android:id="@+id/email"
         android:layout_width="fill_parent"
@@ -50,7 +57,7 @@ android:padding="10dp" >
         android:layout_marginTop="20dip"
         android:background="@color/btn_login_bg"
         android:text="@string/btn_login"
-        android:textColor="@color/btn_login" />
+        android:textColor="@color/etsu_blue" />
 
     <!-- Link to Login Screen -->
 
@@ -63,7 +70,7 @@ android:padding="10dp" >
         android:text="@string/btn_link_to_register"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        android:textSize="15dp" />
+        android:textSize="15sp" />
 </LinearLayout>
 
 </LinearLayout>
