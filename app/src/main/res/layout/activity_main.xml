@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/dummyLogo"/>
+            android:src="@drawable/dummylogo"/>
 
         <TextView
             android:id="@+id/name"
