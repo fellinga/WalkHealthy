@@ -17,6 +17,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends Activity {
 
@@ -25,11 +27,16 @@ public class RegisterActivity extends Activity {
     private EditText inputUsername;
     private EditText inputEmail;
     private EditText inputPassword;
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase mDatabase;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance();
 
         inputUsername = (EditText) findViewById(R.id.name);
         inputEmail = (EditText) findViewById(R.id.email);
@@ -68,8 +75,6 @@ public class RegisterActivity extends Activity {
     }
 
     private void createNewUser(final String email, final String password, final String username) {
-        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -80,7 +85,11 @@ public class RegisterActivity extends Activity {
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                     .setDisplayName(username).build();
                             user.updateProfile(profileUpdates);
+
                             user.sendEmailVerification();
+
+                            writeIdDatabase(user);
+                            joinAllGroup(user);
 
                             openNewUserActivity();
                         } else {
@@ -90,6 +99,20 @@ public class RegisterActivity extends Activity {
                         }
                     }
                 });
+    }
+
+    private void writeIdDatabase(FirebaseUser user) {
+        DatabaseReference dataRef = mDatabase.getReference();
+
+        // WRITE ID TO DATABASE AND JOIN ALL USERS GROUP
+        dataRef.child("users").child(user.getUid()).child("groups").child("allusers").setValue("true");
+    }
+
+    private void joinAllGroup(FirebaseUser user) {
+        DatabaseReference dataRef = mDatabase.getReference();
+
+        // ADD USER TO THE ALL USERS GROUP
+        dataRef.child("groups").child("allusers").child("members").child(user.getUid()).setValue("true");
     }
 
     private void openNewUserActivity() {
