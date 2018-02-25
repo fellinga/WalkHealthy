@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import fighting_mongooses.walkhealthy.Objects.Group;
 import fighting_mongooses.walkhealthy.Utilities.DatabaseTools;
 
 public class MainActivity extends AppCompatActivity {
@@ -107,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String groupName = userInput.getText().toString();
-                if (DatabaseTools.addNewGroup(user.getUid(), groupName)) {
+                Group grp = new Group(groupName, user.getUid());
+                if (DatabaseTools.addNewGroup(grp)) {
                     Toast.makeText(MainActivity.this, "Group created.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Could not create group.", Toast.LENGTH_SHORT).show();

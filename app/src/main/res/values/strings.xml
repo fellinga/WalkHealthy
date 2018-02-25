@@ -6,7 +6,7 @@
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
     <string name="hint_name">Username</string>
-    <string name="hint_age">Age</string>
+    <string name="hint_birthday">Birthday MM/DD/YYYY </string>
     <string name="btn_login">LOGIN</string>
     <string name="btn_register">REGISTER</string>
     <string name="btn_link_to_register">Not a member? Sign up now.</string>
@@ -19,10 +19,9 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_field_required">This field is required</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="btn_skipIntro">SKIP</string>
+    <string name="btn_skipIntro">SKIP INTRO</string>
     <string name="btn_confirmNewUser">SAVE</string>
-    <string name="welcomeText">   Welcome to Walk Healthy. \nPlease enter your current
-                                    age into the field below."</string>
+    <string name="welcomeText">Welcome to Walk Healthy.</string>
     <string name="registerHeading">Create new account</string>
     <string name="headAccount">MY ACCOUNT</string>
     <string name="headSettEmail">Email</string>

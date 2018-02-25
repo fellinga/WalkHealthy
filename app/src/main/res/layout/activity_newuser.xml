@@ -16,28 +16,6 @@
         android:textSize="24dp"
         android:textColor="@color/white" />
 
-    <EditText
-        android:id="@+id/age"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="20dp"
-        android:background="@color/white"
-        android:hint="@string/hint_age"
-        android:inputType="textCapWords"
-        android:padding="10dp"
-        android:singleLine="true"
-        android:textColor="@color/input_register"
-        android:textColorHint="@color/input_register_hint" />
-
-    <Button
-        android:id="@+id/btnNewUser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:text="@string/btn_confirmNewUser"
-        android:textColor="@color/etsu_blue" />
-
     <Button
         android:id="@+id/btnSkip"
         android:layout_width="match_parent"

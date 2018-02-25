@@ -20,15 +20,15 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import fighting_mongooses.walkhealthy.Objects.User;
+import fighting_mongooses.walkhealthy.Utilities.DatabaseTools;
+
 public class RegisterActivity extends Activity {
 
     private Button btnRegister;
     private Button btnLinkToLogin;
-    private EditText inputUsername;
-    private EditText inputEmail;
-    private EditText inputPassword;
+    private EditText inputUsername, inputBirthday, inputEmail, inputPassword;
     private FirebaseAuth mAuth;
-    private FirebaseDatabase mDatabase;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,9 +36,9 @@ public class RegisterActivity extends Activity {
         setContentView(R.layout.activity_register);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance();
 
         inputUsername = (EditText) findViewById(R.id.name);
+        inputBirthday = (EditText) findViewById(R.id.birthday);
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
         btnRegister = (Button) findViewById(R.id.btnRegister);
@@ -47,12 +47,13 @@ public class RegisterActivity extends Activity {
         // Register Button Click event
         btnRegister.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                String name = inputUsername.getText().toString().trim();
+                String username = inputUsername.getText().toString().trim();
+                String birthday = inputBirthday.getText().toString().trim();
                 String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
 
-                if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
-                    createNewUser(email, password, name);
+                if (!username.isEmpty() && birthday.length() == 8 && !email.isEmpty() && !password.isEmpty()) {
+                    createNewUser(email, birthday, password, username);
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your details!", Toast.LENGTH_LONG)
@@ -74,23 +75,22 @@ public class RegisterActivity extends Activity {
 
     }
 
-    private void createNewUser(final String email, final String password, final String username) {
+    private void createNewUser(final String email, final String birthday, final String password, final String username) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            FirebaseUser fbUser = mAuth.getCurrentUser();
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                     .setDisplayName(username).build();
-                            user.updateProfile(profileUpdates);
+                            fbUser.updateProfile(profileUpdates);
 
-                            user.sendEmailVerification();
+                            User user = new User(username, birthday);
+                            DatabaseTools.addNewUser(fbUser.getUid(), user);
 
-                            writeIdDatabase(user);
-                            joinAllGroup(user);
-
+                            fbUser.sendEmailVerification();
                             openNewUserActivity();
                         } else {
                             // If sign in fails, display a message to the user.
@@ -99,20 +99,6 @@ public class RegisterActivity extends Activity {
                         }
                     }
                 });
-    }
-
-    private void writeIdDatabase(FirebaseUser user) {
-        DatabaseReference dataRef = mDatabase.getReference();
-
-        // WRITE ID TO DATABASE AND JOIN ALL USERS GROUP
-        dataRef.child("users").child(user.getUid()).child("groups").child("allusers").setValue("true");
-    }
-
-    private void joinAllGroup(FirebaseUser user) {
-        DatabaseReference dataRef = mDatabase.getReference();
-
-        // ADD USER TO THE ALL USERS GROUP
-        dataRef.child("groups").child("allusers").child("members").child(user.getUid()).setValue("true");
     }
 
     private void openNewUserActivity() {

@@ -12,21 +12,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import fighting_mongooses.walkhealthy.Utilities.DatabaseTools;
+
 
 public class NewUserActivity extends AppCompatActivity {
 
-    private Button btnSkip, btnNewUser;
-    private EditText ageField;
-    private FirebaseAuth mAuth;
-    private FirebaseDatabase mDatabase;
+    private Button btnSkip;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_newuser);
-
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance();
 
         // Register Button Click event
         btnSkip = (Button) findViewById(R.id.btnSkip);
@@ -35,29 +31,6 @@ public class NewUserActivity extends AppCompatActivity {
                 openMainActivity();
             }
         });
-
-        ageField = (EditText) findViewById(R.id.age);
-
-        btnNewUser = (Button) findViewById(R.id.btnNewUser);
-        btnNewUser.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                addAgeToDatabase();
-                openMainActivity();
-            }
-        });
-
-    }
-
-    private void addAgeToDatabase() {
-        String age = ageField.getText().toString();
-        if (age.equals("")) return;
-
-        int ageInt = Integer.valueOf(age);
-
-        DatabaseReference dataRef = mDatabase.getReference();
-        FirebaseUser user = mAuth.getCurrentUser();
-
-        dataRef.child("users").child(user.getUid()).child("age").setValue(ageInt);
     }
 
     private void openMainActivity() {

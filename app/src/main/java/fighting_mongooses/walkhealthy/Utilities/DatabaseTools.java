@@ -6,6 +6,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import fighting_mongooses.walkhealthy.Objects.Group;
+import fighting_mongooses.walkhealthy.Objects.User;
+
 /**
  * Created by mario on 2/24/2018.
  */
@@ -13,24 +19,34 @@ import com.google.firebase.database.ValueEventListener;
 public final class DatabaseTools {
 
     private static final FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
-    private static final DatabaseReference users = mDatabase.getReference().child("users");
-    private static final DatabaseReference groups = mDatabase.getReference().child("groups");
+    private static final DatabaseReference usersRef = mDatabase.getReference().child("users");
+    private static final DatabaseReference groupsRef = mDatabase.getReference().child("groups");
 
-    public static boolean addNewGroup(final String userID, final String groupName) {
+    public static void addNewUser(final String userID, final User user) {
+        Map<String,Object> userMap = new HashMap<>();
+        userMap.put(userID, user);
+
+        usersRef.updateChildren(userMap);
+        addUserToGroup(userID, "allusers");
+    }
+
+    public static boolean addNewGroup(final Group group) {
         // TODO check if group exists
-        // Adding an user to a non existing group creates the group.
-        addUserToGroup(groupName, userID);
-        changeGroupAdmin(groupName, userID);
+        Map<String,Object> groupMap = new HashMap<>();
+        groupMap.put(group.getName(), group);
+
+        groupsRef.updateChildren(groupMap);
+        addUserToGroup(group.getAdmin(), group.getName());
         return true;
     }
 
-    public static void changeGroupAdmin(final String groupName, final String newAdmin) {
-        groups.child(groupName).child("admin").setValue(newAdmin);
+    public static void changeGroupAdmin(final String userID, final String groupName) {
+        groupsRef.child(groupName).child("admin").setValue(userID);
     }
 
-    public static void addUserToGroup(final String groupName, final String newMember) {
-        users.child(newMember).child("groups").child(groupName).setValue("true");
-        groups.child(groupName).child("members").child(newMember).setValue("true");
+    public static void addUserToGroup(final String userID, final String groupName) {
+        usersRef.child(userID).child("groups").child(groupName).setValue("true");
+        groupsRef.child(groupName).child("members").child(userID).setValue("true");
     }
 
     public static boolean removeGroup(final String groupName) {
@@ -40,7 +56,7 @@ public final class DatabaseTools {
 
         // TODO only group owner shouuld be able to remove
 
-        users.addListenerForSingleValueEvent(new ValueEventListener() {
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -52,7 +68,7 @@ public final class DatabaseTools {
             }
         });
 
-        groups.child(groupName).removeValue();
+        groupsRef.child(groupName).removeValue();
         return true;
     }
 
