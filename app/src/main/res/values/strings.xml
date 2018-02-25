@@ -26,7 +26,7 @@
     <string name="headAccount">MY ACCOUNT</string>
     <string name="headSettEmail">Email</string>
     <string name="headSettName">Username</string>
-    <string name="headSettAge">Age</string>
+    <string name="headSettBirthday">Birthday</string>
     <string name="headMainGroups">YOUR GROUPS</string>
     <string name="headMainRecent">RECENT ACTIVITIES</string>
     <string name="todo">- TODO</string>

@@ -92,11 +92,11 @@
                     android:id="@+id/headSettAge"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/headSettAge"
+                    android:text="@string/headSettBirthday"
                     android:textColor="@color/white" />
 
                 <TextView
-                    android:id="@+id/age"
+                    android:id="@+id/birthday"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="TextView"

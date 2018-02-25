@@ -19,7 +19,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private TextView ageView, usernameView, emailView;
+    private TextView birthdayView, usernameView, emailView;
     private FirebaseAuth mAuth;
     private FirebaseDatabase mDatabase;
 
@@ -41,7 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
 
-        ageView = (TextView) findViewById(R.id.age);
+        birthdayView = (TextView) findViewById(R.id.birthday);
         usernameView = (TextView) findViewById(R.id.username);
         emailView = (TextView) findViewById(R.id.email);
 
@@ -52,11 +52,11 @@ public class SettingsActivity extends AppCompatActivity {
         DatabaseReference dataRef = mDatabase.getReference();
         FirebaseUser user = mAuth.getCurrentUser();
 
-        dataRef.child("users").child(user.getUid()).child("age")
+        dataRef.child("users").child(user.getUid()).child("birthday")
                 .addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                ageView.setText(snapshot.getValue().toString());
+                birthdayView.setText(snapshot.getValue().toString());
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
