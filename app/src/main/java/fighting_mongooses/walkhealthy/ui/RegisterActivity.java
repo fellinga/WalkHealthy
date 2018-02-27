@@ -96,15 +96,9 @@ public class RegisterActivity extends Activity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser fbUser = mAuth.getCurrentUser();
-                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(username).build();
-                            fbUser.updateProfile(profileUpdates);
-
                             User user = new User(username, birthday);
-                            DatabaseTools.createUser(fbUser.getUid(), user);
+                            DatabaseTools.createUser(user);
 
-                            fbUser.sendEmailVerification();
                             openNewUserActivity();
                         } else {
                             // If sign in fails, display a message to the user.

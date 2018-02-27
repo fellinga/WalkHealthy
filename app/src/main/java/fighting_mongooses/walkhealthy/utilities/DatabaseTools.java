@@ -1,5 +1,8 @@
 package fighting_mongooses.walkhealthy.utilities;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +27,11 @@ import fighting_mongooses.walkhealthy.objects.User;
 public final class DatabaseTools {
 
     /**
+     * Reference to the firebase authentication.
+     */
+    private static final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+    /**
      * Reference to the firebase database.
      */
     private static final FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
@@ -43,15 +51,56 @@ public final class DatabaseTools {
      * Also adds the new created user to the
      * *allusers* group.
      *
-     * @param userID New Users ID stored as key
      * @param user   User object that should be added
      */
-    public static void createUser(final String userID, final User user) {
-        Map<String,Object> userMap = new HashMap<>();
-        userMap.put(userID, user);
+    public static void createUser(final User user) {
+        final FirebaseUser fbUser = mAuth.getCurrentUser();
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(user.getUsername()).build();
+        fbUser.updateProfile(profileUpdates);
+        fbUser.sendEmailVerification();
 
+        usersRef.child(fbUser.getUid()).setValue(user);
+        addUserToGroup(fbUser.getUid(), "allusers");
+    }
+
+    /**
+     * Updates an existing user based on his
+     * userId.
+     *
+     * @param userId Users ID to find the user
+     * @param user   User object that should be modified
+     */
+    public static void updateUser(final String userId, final User user) {
+        Map<String,Object> userMap = new HashMap<>();
+        userMap.put(userId, user);
         usersRef.updateChildren(userMap);
-        addUserToGroup(userID, "allusers");
+    }
+
+    /**
+     * Deletes the current user in the firebase
+     * auth and firebase database section.
+     */
+    public static void deleteUser() {
+        final FirebaseUser fbUser = mAuth.getCurrentUser();
+        // REMOVE USER FROM ALL GROUPS
+        groupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    removeUserFromGroup(fbUser.getUid(), snapshot.getRef().getKey());
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+        // DELETE USER FROM DATABASE
+        usersRef.child(fbUser.getUid()).removeValue();
+        // DELETE USER FROM AUTHENTICATION
+        mAuth.signOut();
+        fbUser.delete();
     }
 
     /**
@@ -79,23 +128,36 @@ public final class DatabaseTools {
     /**
      * Changes an existing groups administrator.
      *
-     * @param userID    The groups new administrator.
+     * @param userId    The groups new administrator.
      * @param groupName The group name where we want the change.
      */
-    public static void changeGroupAdmin(final String userID, final String groupName) {
-        groupsRef.child(groupName).child("admin").setValue(userID);
+    public static void changeGroupAdmin(final String userId, final String groupName) {
+        groupsRef.child(groupName).child("admin").setValue(userId);
     }
 
     /**
      * Adds an existing user to an existing group. Both -
      * the user and the group reference are getting updated.
      *
-     * @param userID    The user that should be added.
+     * @param userId    The user that should be added.
      * @param groupName The group name where we want the change.
      */
-    public static void addUserToGroup(final String userID, final String groupName) {
-        usersRef.child(userID).child("groups").child(groupName).setValue("true");
-        groupsRef.child(groupName).child("members").child(userID).setValue("true");
+    public static void addUserToGroup(final String userId, final String groupName) {
+        usersRef.child(userId).child("groups").child(groupName).setValue("true");
+        groupsRef.child(groupName).child("members").child(userId).setValue("true");
+    }
+
+    /**
+     * Removes an existing user from an existing group. Both -
+     * the user and the group reference are getting removed.
+     *
+     * @param userId    The user where we want to remove the group.
+     * @param groupName The group name where we want the change.
+     */
+    public static void removeUserFromGroup(final String userId, final String groupName) {
+        // TODO if user is admin remove group
+        usersRef.child(userId).child("groups").child(groupName).removeValue();
+        groupsRef.child(groupName).child("members").child(userId).removeValue();
     }
 
     /**
@@ -111,7 +173,7 @@ public final class DatabaseTools {
             return false;
         }
 
-        // TODO only group owner shouuld be able to remove
+        // TODO only group owner should be able to remove
 
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -132,12 +194,12 @@ public final class DatabaseTools {
     /**
      * Returns the requested user as an user object.
      *
-     * @param userID   The userID of the requested user.
+     * @param userId   The userId of the requested user.
      * @param listener Listener to perform the async request
      */
-    public static void readUserData(String userID, final OnGetUserListener listener) {
+    public static void readUserData(String userId, final OnGetUserListener listener) {
         listener.onStart();
-        usersRef.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+        usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final User user = dataSnapshot.getValue(User.class);

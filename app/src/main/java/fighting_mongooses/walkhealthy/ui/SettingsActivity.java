@@ -1,9 +1,13 @@
 package fighting_mongooses.walkhealthy.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,6 +29,7 @@ import fighting_mongooses.walkhealthy.listener.OnGetUserListener;
  */
 public class SettingsActivity extends AppCompatActivity {
 
+    private Button deleteAccount;
     private TextView birthdayView, usernameView, emailView;
     private FirebaseAuth mAuth;
     private FirebaseUser fbUser;
@@ -50,6 +55,18 @@ public class SettingsActivity extends AppCompatActivity {
         birthdayView = (TextView) findViewById(R.id.birthday);
         usernameView = (TextView) findViewById(R.id.username);
         emailView = (TextView) findViewById(R.id.email);
+        deleteAccount = (Button) findViewById(R.id.deleteAcc);
+
+        deleteAccount.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View view) {
+                DatabaseTools.deleteUser();
+                Intent i = new Intent(getApplicationContext(),
+                        LoginActivity.class);
+                startActivity(i);
+                finish();
+            }
+        });
 
         updateInfo();
     }
