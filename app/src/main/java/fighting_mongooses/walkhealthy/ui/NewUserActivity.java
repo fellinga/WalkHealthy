@@ -1,20 +1,20 @@
-package fighting_mongooses.walkhealthy;
+package fighting_mongooses.walkhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import fighting_mongooses.walkhealthy.R;
 
-import fighting_mongooses.walkhealthy.Utilities.DatabaseTools;
-
-
+/**
+ * New user activity.
+ *
+ * This activity provides new user with valuable information.
+ *
+ * @author Mario Fellinger
+ */
 public class NewUserActivity extends AppCompatActivity {
 
     private Button btnSkip;
@@ -33,6 +33,10 @@ public class NewUserActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * This method forwards the user to the
+     * main activity.
+     */
     private void openMainActivity() {
         startActivity(new Intent(this , MainActivity.class));
         finish();

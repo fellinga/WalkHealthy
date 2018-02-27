@@ -1,11 +1,10 @@
-package fighting_mongooses.walkhealthy;
+package fighting_mongooses.walkhealthy.ui;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,13 +20,18 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import static android.content.ContentValues.TAG;
+import fighting_mongooses.walkhealthy.R;
 
+/**
+ * Login and app start activity
+ *
+ * This class lets the user login to the system or click the register link.
+ *
+ * @author Mario Fellinger
+ */
 public class LoginActivity extends Activity {
 
-    // UI references.
-    private EditText mEmailView;
-    private EditText mPasswordView;
+    private EditText mEmailView, mPasswordView;
     private FirebaseAuth mAuth;
 
     @Override
@@ -85,6 +89,7 @@ public class LoginActivity extends Activity {
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
+     *
      */
     private void attemptLogin() {
         // Reset errors.
@@ -123,14 +128,35 @@ public class LoginActivity extends Activity {
         }
     }
 
+    /**
+     * This method checks if the given email address is valid.
+     *
+     * @param email The email to check
+     * @return      True if email is valid false otherwise
+     */
     private boolean isEmailValid(String email) {
         return email.contains("@") && email.contains(".");
     }
 
+    /**
+     * This method checks if the given password is valid.
+     *
+     * @param password The password to check
+     * @return         True if password is valid false otherwise
+     */
     private boolean isPasswordValid(String password) {
         return password.length() > 7;
     }
 
+    /**
+     * This method tries to sign in the user with
+     * given email and password. If successful the
+     * user gets redirected to the main activity
+     * otherwise a toast message is shown.
+     *
+     * @param email    The email to check
+     * @param password The email to check
+     */
     private void signIn(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -148,6 +174,10 @@ public class LoginActivity extends Activity {
                 });
     }
 
+    /**
+     * This method forwards the user to the
+     * main activity.
+     */
     private void openMainActivity() {
         startActivity(new Intent(this , MainActivity.class));
         finish();

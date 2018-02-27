@@ -1,27 +1,33 @@
-package fighting_mongooses.walkhealthy;
+package fighting_mongooses.walkhealthy.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
+import fighting_mongooses.walkhealthy.R;
+import fighting_mongooses.walkhealthy.objects.User;
+import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
+import fighting_mongooses.walkhealthy.listener.OnGetUserListener;
+
+/**
+ * Settings activity for user information
+ *
+ * This activity shows users specific information.
+ *
+ * @author Mario Fellinger
+ */
 public class SettingsActivity extends AppCompatActivity {
 
     private TextView birthdayView, usernameView, emailView;
     private FirebaseAuth mAuth;
-    private FirebaseDatabase mDatabase;
+    private FirebaseUser fbUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +45,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance();
+        fbUser = mAuth.getCurrentUser();
 
         birthdayView = (TextView) findViewById(R.id.birthday);
         usernameView = (TextView) findViewById(R.id.username);
@@ -48,23 +54,30 @@ public class SettingsActivity extends AppCompatActivity {
         updateInfo();
     }
 
+    /**
+     * Fetches the users information from the firebase
+     * database and displays it.
+     */
     private void updateInfo() {
-        DatabaseReference dataRef = mDatabase.getReference();
-        FirebaseUser user = mAuth.getCurrentUser();
+        DatabaseTools.readUserData(fbUser.getUid(), new OnGetUserListener() {
+            @Override
+            public void onStart() {
 
-        dataRef.child("users").child(user.getUid()).child("birthday")
-                .addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                birthdayView.setText(snapshot.getValue().toString());
             }
+
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onSuccess(User user) {
+                birthdayView.setText(user.getBirthday());
+                usernameView.setText(user.getUsername());
+            }
+
+            @Override
+            public void onFailed(DatabaseError databaseError) {
+
             }
         });
 
-        emailView.setText(user.getEmail());
-        usernameView.setText(user.getDisplayName());
+        emailView.setText(fbUser.getEmail());
     }
 
     @Override

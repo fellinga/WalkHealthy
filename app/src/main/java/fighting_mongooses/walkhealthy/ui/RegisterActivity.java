@@ -1,11 +1,9 @@
-package fighting_mongooses.walkhealthy;
+package fighting_mongooses.walkhealthy.ui;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,16 +15,21 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import fighting_mongooses.walkhealthy.Objects.User;
-import fighting_mongooses.walkhealthy.Utilities.DatabaseTools;
+import fighting_mongooses.walkhealthy.R;
+import fighting_mongooses.walkhealthy.objects.User;
+import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 
+/**
+ * Register activity for user registration.
+ *
+ * This activity provides functions to create an users account.
+ *
+ * @author Mario Fellinger
+ */
 public class RegisterActivity extends Activity {
 
-    private Button btnRegister;
-    private Button btnLinkToLogin;
+    private Button btnRegister, btnLinkToLogin;
     private EditText inputUsername, inputBirthday, inputEmail, inputPassword;
     private FirebaseAuth mAuth;
 
@@ -53,7 +56,7 @@ public class RegisterActivity extends Activity {
                 String password = inputPassword.getText().toString().trim();
 
                 if (!username.isEmpty() && birthday.length() == 8 && !email.isEmpty() && !password.isEmpty()) {
-                    createNewUser(email, birthday, password, username);
+                    createUser(email, birthday, password, username);
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your details!", Toast.LENGTH_LONG)
@@ -75,7 +78,18 @@ public class RegisterActivity extends Activity {
 
     }
 
-    private void createNewUser(final String email, final String birthday, final String password, final String username) {
+    /**
+     * Creates a new user via firebase authentication
+     * takes the automated generated ID and creates the
+     * user also in the firebase database where additional
+     * information is stored (like birthday etc.).
+     *
+     * @param email    The email address for the new user
+     * @param birthday The birthday for the new user
+     * @param password The password for the new user
+     * @param username The username for the new user
+     */
+    private void createUser(final String email, final String birthday, final String password, final String username) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -88,7 +102,7 @@ public class RegisterActivity extends Activity {
                             fbUser.updateProfile(profileUpdates);
 
                             User user = new User(username, birthday);
-                            DatabaseTools.addNewUser(fbUser.getUid(), user);
+                            DatabaseTools.createUser(fbUser.getUid(), user);
 
                             fbUser.sendEmailVerification();
                             openNewUserActivity();
@@ -101,6 +115,10 @@ public class RegisterActivity extends Activity {
                 });
     }
 
+    /**
+     * This method forwards the user to the
+     * new user activity.
+     */
     private void openNewUserActivity() {
         startActivity(new Intent(this , NewUserActivity.class));
         finish();

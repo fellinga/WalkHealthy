@@ -1,4 +1,4 @@
-package fighting_mongooses.walkhealthy;
+package fighting_mongooses.walkhealthy.ui;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -24,15 +24,23 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import fighting_mongooses.walkhealthy.Objects.Group;
-import fighting_mongooses.walkhealthy.Utilities.DatabaseTools;
+import fighting_mongooses.walkhealthy.R;
+import fighting_mongooses.walkhealthy.objects.Group;
+import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 
+/**
+ * Apps main activity for user information
+ *
+ * This activity provides different actions for the users.
+ *
+ * @author Mario Fellinger
+ */
 public class MainActivity extends AppCompatActivity {
 
     private TableLayout grplayout;
     private FirebaseAuth mAuth;
+    private FirebaseUser fbUser;
     private FirebaseDatabase mDatabase;
-    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,22 +53,26 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.addGrpBtn);
         myFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                addNewGroup();
+                createGroup();
             }
         });
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
-        user = mAuth.getCurrentUser();
+        fbUser = mAuth.getCurrentUser();
         grplayout = (TableLayout) findViewById(R.id.grplayout);
 
         fetchUsersGroups();
     }
 
+    /**
+     * Fetches all the users groups from the firebase
+     * database and displays and creates a tablerow
+     * for each entry.
+     */
     private void fetchUsersGroups() {
         DatabaseReference dataRef = mDatabase.getReference();
-
-        dataRef.child("users").child(user.getUid()).child("groups")
+        dataRef.child("users").child(fbUser.getUid()).child("groups")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
@@ -99,7 +111,12 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void addNewGroup() {
+    /**
+     * Shows an alert dialog to the user and
+     * takes the users input to create a new
+     * group in the database.
+     */
+    private void createGroup() {
         final AlertDialog.Builder inputAlert = new AlertDialog.Builder(this);
         inputAlert.setTitle("Enter Group Name");
         final EditText userInput = new EditText(this);
@@ -108,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String groupName = userInput.getText().toString();
-                Group grp = new Group(groupName, user.getUid());
-                if (DatabaseTools.addNewGroup(grp)) {
+                Group grp = new Group(groupName, fbUser.getUid());
+                if (DatabaseTools.createGroup(grp)) {
                     Toast.makeText(MainActivity.this, "Group created.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Could not create group.", Toast.LENGTH_SHORT).show();
@@ -154,6 +171,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method logs the user out and redirects
+     * to the main activity.
+     */
     private void logoutUser() {
         // Launching the login activity
         mAuth.signOut();
