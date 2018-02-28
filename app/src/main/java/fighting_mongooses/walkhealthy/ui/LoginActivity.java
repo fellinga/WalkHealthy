@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import fighting_mongooses.walkhealthy.R;
+import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 
 /**
  * Login and app start activity
@@ -79,8 +80,8 @@ public class LoginActivity extends Activity {
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
+        final FirebaseUser fbUser = DatabaseTools.getCurrentFirebaseUser();
+        if (fbUser != null) {
             openMainActivity();
         }
     }

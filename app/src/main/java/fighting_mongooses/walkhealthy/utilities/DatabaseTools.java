@@ -21,10 +21,19 @@ import fighting_mongooses.walkhealthy.objects.User;
  * Helper class for database requests
  *
  * This class provides useful static methods to add or request data from the database.
+ * Important information and guideline for the database.
+ * - Information about our database structure:
+ * https://firebase.google.com/docs/database/android/structure-data#fanout
+ * - How to: "firebase database":
+ * https://firebase.google.com/docs/database/android/read-and-write
  *
  * @author Mario Fellinger
  */
 public final class DatabaseTools {
+
+    private static final String USERS_PATH = "users";
+    private static final String GROUPS_PATH = "groups";
+    private static final String ALLUSERS_GROUP = "allusers";
 
     /**
      * Reference to the firebase authentication.
@@ -39,12 +48,39 @@ public final class DatabaseTools {
     /**
      * Specific reference to the USERS key in the firebase database.
      */
-    private static final DatabaseReference usersRef = mDatabase.getReference().child("users");
+    private static final DatabaseReference usersRef = mDatabase.getReference().child(USERS_PATH);
 
     /**
      * Specific reference to the GROUPS key in the firebase database.
      */
-    private static final DatabaseReference groupsRef = mDatabase.getReference().child("groups");
+    private static final DatabaseReference groupsRef = mDatabase.getReference().child(GROUPS_PATH);
+
+    /**
+     * Returns the current firebase user object.
+     *
+     * @return    The current firebase user
+     */
+    public static FirebaseUser getCurrentFirebaseUser() {
+        return mAuth.getCurrentUser();
+    }
+
+    /**
+     * Returns the users database reference.
+     *
+     * @return    The users reference.
+     */
+    public static DatabaseReference getUsersReference() {
+        return usersRef;
+    }
+
+    /**
+     * Returns the groups database reference.
+     *
+     * @return    The groups reference.
+     */
+    public static DatabaseReference getGroupsReference() {
+        return groupsRef;
+    }
 
     /**
      * Adds the new user to the user reference.
@@ -54,27 +90,26 @@ public final class DatabaseTools {
      * @param user   User object that should be added
      */
     public static void createUser(final User user) {
-        final FirebaseUser fbUser = mAuth.getCurrentUser();
+        final FirebaseUser fbUser = getCurrentFirebaseUser();
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                 .setDisplayName(user.getUsername()).build();
         fbUser.updateProfile(profileUpdates);
         fbUser.sendEmailVerification();
 
         usersRef.child(fbUser.getUid()).setValue(user);
-        addUserToGroup(fbUser.getUid(), "allusers");
+        addUserToGroup(fbUser.getUid(), ALLUSERS_GROUP);
     }
 
     /**
-     * Updates an existing user based on his
-     * userId.
+     * Updates an existing user based on the userId.
      *
      * @param userId Users ID to find the user
      * @param user   User object that should be modified
      */
     public static void updateUser(final String userId, final User user) {
-        Map<String,Object> userMap = new HashMap<>();
-        userMap.put(userId, user);
-        usersRef.updateChildren(userMap);
+        // TODO Check if userID is valid
+        // TODO Check if username changed - if yes change firebase auth username
+        usersRef.child(userId).setValue(user);
     }
 
     /**
@@ -82,7 +117,7 @@ public final class DatabaseTools {
      * auth and firebase database section.
      */
     public static void deleteUser() {
-        final FirebaseUser fbUser = mAuth.getCurrentUser();
+        final FirebaseUser fbUser = getCurrentFirebaseUser();
         // REMOVE USER FROM ALL GROUPS
         groupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -117,12 +152,20 @@ public final class DatabaseTools {
         }
 
         // TODO check if group exists
-        Map<String,Object> groupMap = new HashMap<>();
-        groupMap.put(group.getName(), group);
-
-        groupsRef.updateChildren(groupMap);
+        groupsRef.child(group.getName()).setValue(group);
         addUserToGroup(group.getAdmin(), group.getName());
         return true;
+    }
+
+    /**
+     * Updates an exisitng group in the group reference.
+     *
+     * @param group The group that should be added.
+     * @return      True if group added false otherwise.
+     */
+    public static void updateGroup(final Group group) {
+        // TODO make sure group exists
+        groupsRef.child(group.getName()).setValue(group);
     }
 
     /**
@@ -155,7 +198,7 @@ public final class DatabaseTools {
      * @param groupName The group name where we want the change.
      */
     public static void removeUserFromGroup(final String userId, final String groupName) {
-        // TODO if user is admin remove group
+        // TODO if user is admin choose random new admin
         usersRef.child(userId).child("groups").child(groupName).removeValue();
         groupsRef.child(groupName).child("members").child(userId).removeValue();
     }
@@ -169,7 +212,7 @@ public final class DatabaseTools {
      * @return          True if group removed false otherwise.
      */
     public static boolean removeGroup(final String groupName) {
-        if (groupName.equals("allusers")) {
+        if (groupName.equals(ALLUSERS_GROUP)) {
             return false;
         }
 
@@ -233,5 +276,9 @@ public final class DatabaseTools {
                 listener.onFailed(databaseError);
             }
         });
+    }
+
+    public static void logOffUser() {
+        mAuth.signOut();
     }
 }

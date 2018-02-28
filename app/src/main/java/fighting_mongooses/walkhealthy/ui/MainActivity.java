@@ -38,9 +38,6 @@ import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 public class MainActivity extends AppCompatActivity {
 
     private TableLayout grplayout;
-    private FirebaseAuth mAuth;
-    private FirebaseUser fbUser;
-    private FirebaseDatabase mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +54,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance();
-        fbUser = mAuth.getCurrentUser();
         grplayout = (TableLayout) findViewById(R.id.grplayout);
 
         fetchUsersGroups();
@@ -71,8 +65,7 @@ public class MainActivity extends AppCompatActivity {
      * for each entry.
      */
     private void fetchUsersGroups() {
-        DatabaseReference dataRef = mDatabase.getReference();
-        dataRef.child("users").child(fbUser.getUid()).child("groups")
+        DatabaseTools.getUsersReference().child(DatabaseTools.getCurrentFirebaseUser().getUid()).child("groups")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
@@ -125,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String groupName = userInput.getText().toString();
-                Group grp = new Group(groupName, fbUser.getUid());
+                Group grp = new Group(groupName, DatabaseTools.getCurrentFirebaseUser().getUid());
                 if (DatabaseTools.createGroup(grp)) {
                     Toast.makeText(MainActivity.this, "Group created.", Toast.LENGTH_SHORT).show();
                 } else {
@@ -177,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void logoutUser() {
         // Launching the login activity
-        mAuth.signOut();
+        DatabaseTools.logOffUser();
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();

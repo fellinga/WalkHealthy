@@ -31,8 +31,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Button deleteAccount;
     private TextView birthdayView, usernameView, emailView;
-    private FirebaseAuth mAuth;
-    private FirebaseUser fbUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +46,6 @@ public class SettingsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-
-        mAuth = FirebaseAuth.getInstance();
-        fbUser = mAuth.getCurrentUser();
 
         birthdayView = (TextView) findViewById(R.id.birthday);
         usernameView = (TextView) findViewById(R.id.username);
@@ -76,6 +71,7 @@ public class SettingsActivity extends AppCompatActivity {
      * database and displays it.
      */
     private void updateInfo() {
+        final FirebaseUser fbUser = DatabaseTools.getCurrentFirebaseUser();
         DatabaseTools.readUserData(fbUser.getUid(), new OnGetUserListener() {
             @Override
             public void onStart() {

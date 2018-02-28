@@ -115,7 +115,8 @@ public class RegisterActivity extends Activity {
             return returnWithToastPost(false, "Passwords do not match.");
         }
         else if (!confirmPassword(password)){
-            return returnWithToastPost(false, "Please enter a valid password, 8-63 characters long.");
+            return returnWithToastPost(false, "Please enter a valid password, " + MIN_PASSWORD_LENGTH +
+                                                             "-" + MAX_PASSWORD_LENGTH + " characters long.");
         }
         // If it cannot be proven false, it must be true!
         return true;
@@ -142,7 +143,7 @@ public class RegisterActivity extends Activity {
      * @return      True - if valid, False - if there is a problem with it.
      */
     private boolean confirmEmail(String email){
-        Pattern p = Pattern.compile("[a-zA-Z0123456789\\_\\-\\!\\#\\$\\%\\&]{2,128}@[[a-zA-Z0123456789\\_\\-\\!\\#\\$\\%\\&]\\{2, 128\\}\\}\\.]+[a-zA-Z0123456789\\_\\-\\!\\#\\$\\%\\&]\\{2,8\\}");
+        Pattern p = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(email);
         return m.matches();
     }
@@ -154,7 +155,7 @@ public class RegisterActivity extends Activity {
      * @return  True - if valid, False- if there is a problem with it.
      */
     private boolean confirmPassword(String password){
-        return (password.length() > MIN_PASSWORD_LENGTH && password.length() <= MAX_PASSWORD_LENGTH);
+        return (password.length() >= MIN_PASSWORD_LENGTH && password.length() <= MAX_PASSWORD_LENGTH);
     }
 
     /**
