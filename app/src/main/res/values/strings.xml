@@ -5,6 +5,7 @@
     <string name="title_activity_newuser"> New User </string>
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
+    <string name="hint_confirm_password">Confirm Password</string>
     <string name="hint_name">Username</string>
     <string name="hint_birthday">Birthday MM/DD/YYYY </string>
     <string name="btn_login">LOGIN</string>
