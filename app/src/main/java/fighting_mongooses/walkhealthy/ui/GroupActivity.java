@@ -9,16 +9,23 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.listener.OnGetGroupListener;
+import fighting_mongooses.walkhealthy.listener.OnGetUserListener;
 import fighting_mongooses.walkhealthy.objects.Group;
+import fighting_mongooses.walkhealthy.objects.User;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 
 public class GroupActivity extends AppCompatActivity {
@@ -28,6 +35,7 @@ public class GroupActivity extends AppCompatActivity {
     private Group group;
     private Toolbar groupToolbar;
     private TextView adminName;
+    private List<User> groupMembers = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +52,7 @@ public class GroupActivity extends AppCompatActivity {
         }
 
         adminName = (TextView) findViewById(R.id.adminName);
+        adminName.setText("Group member(s):");
 
         Button btnDeleteGrp = (Button) findViewById(R.id.deleteGrp);
         btnDeleteGrp.setOnClickListener(new View.OnClickListener() {
@@ -63,7 +72,9 @@ public class GroupActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Group group) {
                     GroupActivity.this.group = group;
-                    setData();
+                    groupToolbar.setTitle(group.getName().toUpperCase());
+                    groupToolbar.setSubtitle("Walk Healthy Group");
+                    fetchUsers();
                 }
 
                 @Override
@@ -77,18 +88,28 @@ public class GroupActivity extends AppCompatActivity {
     }
 
     /**
-     * After receiving the group object from the
-     * database this method read name, admin,
-     * members...and displays it.
+     * Gets all group members and adds them
+     * to the users lists.
      */
-    private void setData() {
-        groupToolbar.setTitle(group.getName());
-        groupToolbar.setSubtitle("Walk Healthy Group");
-        adminName.setText("Admin ID: " + group.getAdmin());
+    private void fetchUsers() {
+        for (Map.Entry<String, String> entry : group.getMembers().entrySet()) {
+            DatabaseTools.readUserData(entry.getKey(), new OnGetUserListener() {
+                @Override
+                public void onStart() {
+                    // TODO BLOCK GUI WHILE GRP OBJECT IS LOADING
+                }
 
-        Map<String, String> members = group.getMembers();
-        for (Map.Entry<String, String> entry : members.entrySet()) {
-            adminName.setText(adminName.getText() + "\nMember ID: " + entry.getKey());
+                @Override
+                public void onSuccess(User user) {
+                    GroupActivity.this.groupMembers.add(user);
+                    adminName.setText(adminName.getText() + "\n" + user.getUsername());
+                }
+
+                @Override
+                public void onFailed(DatabaseError databaseError) {
+
+                }
+            });
         }
     }
 
