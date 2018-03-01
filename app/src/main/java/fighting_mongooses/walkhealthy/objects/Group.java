@@ -28,6 +28,13 @@ public class Group {
     private Map<String,String> members = new HashMap<>();
 
     /**
+     * Empty Class constructor. (Needed for Firebase)
+     */
+    public Group() {
+        // DO NOT USE
+    }
+
+    /**
      * Class constructor.
      */
     public Group(String name, String admin) {

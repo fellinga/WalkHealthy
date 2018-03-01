@@ -1,0 +1,55 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@color/etsu_blue"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+tools:context="fighting_mongooses.walkhealthy.ui.MainActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/groupToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/etsu_gold"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_marginRight="20dp"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="70dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/adminName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:textColor="@color/white" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:minHeight="100dp"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/deleteGrp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:text="@string/headGrpDeleteGrp"
+            android:textAlignment="center"
+            android:textColor="@color/red" />
+
+    </LinearLayout>
+
+</ScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

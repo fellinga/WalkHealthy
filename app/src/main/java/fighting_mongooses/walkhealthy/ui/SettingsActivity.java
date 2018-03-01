@@ -31,6 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Button deleteAccount;
     private TextView birthdayView, usernameView, emailView;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,13 +76,15 @@ public class SettingsActivity extends AppCompatActivity {
         DatabaseTools.readUserData(fbUser.getUid(), new OnGetUserListener() {
             @Override
             public void onStart() {
-
+                // TODO BLOCK GUI WHILE USER OBJECT IS LOADING
             }
 
             @Override
             public void onSuccess(User user) {
+                SettingsActivity.this.user = user;
                 birthdayView.setText(user.getBirthday());
                 usernameView.setText(user.getUsername());
+                emailView.setText(fbUser.getEmail());
             }
 
             @Override
@@ -90,7 +93,6 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        emailView.setText(fbUser.getEmail());
     }
 
     @Override

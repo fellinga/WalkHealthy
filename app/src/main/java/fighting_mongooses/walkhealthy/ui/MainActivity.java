@@ -78,20 +78,7 @@ public class MainActivity extends AppCompatActivity {
                             tv.setOnClickListener(new View.OnClickListener() {
                                 public void onClick(View view) {
                                     final String groupName = view.getTag().toString();
-                                    new AlertDialog.Builder(MainActivity.this)
-                                            .setTitle("Delete group.")
-                                            .setMessage("Do you really want to delete " + groupName + "?")
-                                            .setIcon(android.R.drawable.ic_dialog_alert)
-                                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                                                public void onClick(DialogInterface dialog, int whichButton) {
-                                                    if (DatabaseTools.removeGroup(groupName)) {
-                                                        Toast.makeText(MainActivity.this, "Group deleted.", Toast.LENGTH_SHORT).show();
-                                                    } else {
-                                                        Toast.makeText(MainActivity.this, "Could not delete group.", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }})
-                                            .setNegativeButton(android.R.string.no, null).show();
+                                    openGroupActivity(groupName);
                                 }
                             });
                             tr.addView(tv);
@@ -121,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 Group grp = new Group(groupName, DatabaseTools.getCurrentFirebaseUser().getUid());
                 if (DatabaseTools.createGroup(grp)) {
                     Toast.makeText(MainActivity.this, "Group created.", Toast.LENGTH_SHORT).show();
+                    openGroupActivity(groupName);
                 } else {
                     Toast.makeText(MainActivity.this, "Could not create group.", Toast.LENGTH_SHORT).show();
                 }
@@ -134,6 +122,19 @@ public class MainActivity extends AppCompatActivity {
         });
         AlertDialog alertDialog = inputAlert.create();
         alertDialog.show();
+    }
+
+    /**
+     * Open the specified group activity and sends the
+     * group name with it.
+     *
+     * @param groupName Name of the group
+     */
+    private void openGroupActivity(String groupName) {
+        // SEND THE GROUP NAME TO THE GROUP ACTIVITY
+        Intent intent = new Intent(MainActivity.this, GroupActivity.class);
+        intent.putExtra(GroupActivity.KEY_EXTRA, groupName);
+        startActivity(intent);
     }
 
     // Menu icons are inflated just as they were with actionbar
