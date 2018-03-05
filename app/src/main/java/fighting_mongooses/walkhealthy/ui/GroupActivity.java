@@ -6,16 +6,14 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
+import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +32,7 @@ public class GroupActivity extends AppCompatActivity {
 
     private Group group;
     private Toolbar groupToolbar;
-    private TextView adminName;
+    private TableLayout memberlayout;
     private List<User> groupMembers = new ArrayList<>();
 
     @Override
@@ -51,15 +49,7 @@ public class GroupActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        adminName = (TextView) findViewById(R.id.adminName);
-        adminName.setText("Group member(s):");
-
-        Button btnDeleteGrp = (Button) findViewById(R.id.deleteGrp);
-        btnDeleteGrp.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                deleteGroup();
-            }
-        });
+        memberlayout = (TableLayout) findViewById(R.id.memberlayout);
 
         if (getIntent().hasExtra(KEY_EXTRA)) {
 
@@ -102,7 +92,11 @@ public class GroupActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(User user) {
                     GroupActivity.this.groupMembers.add(user);
-                    adminName.setText(adminName.getText() + "\n" + user.getUsername());
+                    TableRow tr = new TableRow(GroupActivity.this);
+                    TextView tv = new TextView(GroupActivity.this);
+                    tv.setText("- " + user.getUsername());
+                    tr.addView(tv);
+                    memberlayout.addView(tr);
                 }
 
                 @Override
@@ -136,13 +130,31 @@ public class GroupActivity extends AppCompatActivity {
                 .setNegativeButton(android.R.string.no, null).show();
     }
 
+    // Menu icons are inflated just as they were with actionbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_group_toolbar, menu);
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // handle arrow click here
-        if (item.getItemId() == android.R.id.home) {
-            finish(); // close this activity and return to preview activity (if there is any)
-        }
 
-        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return super.onOptionsItemSelected(item);
+
+            case R.id.action_deletegrp:
+                deleteGroup();
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 }

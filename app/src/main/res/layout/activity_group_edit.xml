@@ -7,7 +7,7 @@
     tools:context="fighting_mongooses.walkhealthy.ui.MainActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/groupToolbar"
+        android:id="@+id/groupEditToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/etsu_gold"
@@ -17,58 +17,62 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_marginEnd="20dp"
+        android:layout_marginTop="70dp"
         android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="70dp"
+            android:layout_marginEnd="20dp"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="20dp"
-                android:background="@color/white"
-                android:orientation="vertical"
-                android:padding="10dp">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/headGrpMember"
+                    android:id="@+id/textView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/headGrpMember"
-                    android:textSize="20sp" />
+                    android:text="@string/headGrpName"
+                    android:textColor="@color/white"
+                    android:textSize="20dp" />
 
-                <TableLayout
-                    android:id="@+id/memberlayout"
+                <EditText
+                    android:id="@+id/groupname"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                </TableLayout>
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/white"
+                    android:inputType="textCapWords"
+                    android:padding="10dp"
+                    android:singleLine="true"
+                    android:textColor="@color/etsu_blue"
+                    android:textColorHint="@color/input_register_hint" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="20dp"
-                android:background="@color/white"
-                android:orientation="vertical"
-                android:padding="10dp">
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/dummyID"
+                <Button
+                    android:id="@+id/btnSave"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/headMainRecent"
-                    android:textSize="20sp" />
+                    android:background="@color/white"
+                    android:text="SAVE"
+                    android:textAlignment="center"
+                    android:textColor="@color/red" />
 
             </LinearLayout>
 
         </LinearLayout>
+
 
     </ScrollView>
 

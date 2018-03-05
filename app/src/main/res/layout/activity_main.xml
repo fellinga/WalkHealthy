@@ -51,42 +51,6 @@
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="20dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginStart="20dp"
-                    android:background="@color/white"
-                    android:orientation="vertical"
-                    android:padding="10dp">
-
-                    <TextView
-                        android:id="@+id/headMainRecent"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/headMainRecent"
-                        android:textSize="20sp" />
-
-                    <TableLayout
-                        android:id="@+id/actlayout"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TableRow
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent" >
-
-                            <TextView
-                                android:id="@+id/textView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/todo" />
-                        </TableRow>
-                    </TableLayout>
-
-                </LinearLayout>
-
             </LinearLayout>
 
         </ScrollView>

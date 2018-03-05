@@ -16,12 +16,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import fighting_mongooses.walkhealthy.R;
@@ -50,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.addGrpBtn);
         myFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                createGroup();
+                openNewGrpDialog();
             }
         });
 
@@ -92,36 +88,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Shows an alert dialog to the user and
-     * takes the users input to create a new
-     * group in the database.
+     * Opens the new group dialog.
      */
-    private void createGroup() {
-        final AlertDialog.Builder inputAlert = new AlertDialog.Builder(this);
-        inputAlert.setTitle("Enter Group Name");
-        final EditText userInput = new EditText(this);
-        inputAlert.setView(userInput);
-        inputAlert.setPositiveButton("Create", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String groupName = userInput.getText().toString();
-                Group grp = new Group(groupName, DatabaseTools.getCurrentFirebaseUser().getUid());
-                if (DatabaseTools.createGroup(grp)) {
-                    Toast.makeText(MainActivity.this, "Group created.", Toast.LENGTH_SHORT).show();
-                    openGroupActivity(groupName);
-                } else {
-                    Toast.makeText(MainActivity.this, "Could not create group.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        inputAlert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        AlertDialog alertDialog = inputAlert.create();
-        alertDialog.show();
+    private void openNewGrpDialog() {
+        Intent intent = new Intent(MainActivity.this, GroupEditActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -141,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+        getMenuInflater().inflate(R.menu.menu_main_toolbar, menu);
         return true;
     }
 
