@@ -1,5 +1,7 @@
 package fighting_mongooses.walkhealthy.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,7 +31,7 @@ import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private TableLayout grplayout;
+    private TableLayout usergrplayout, allgrplayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +48,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        grplayout = (TableLayout) findViewById(R.id.grplayout);
+        usergrplayout = (TableLayout) findViewById(R.id.usergrplayout);
+        allgrplayout = (TableLayout) findViewById(R.id.allgrplayout);
 
         fetchUsersGroups();
+        fetchAllGroups();
     }
 
     /**
@@ -60,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        grplayout.removeViewsInLayout(0, grplayout.getChildCount());
+                        usergrplayout.removeViewsInLayout(0, usergrplayout.getChildCount());
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             TableRow tr = new TableRow(MainActivity.this);
                             TextView tv = new TextView(MainActivity.this);
@@ -73,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
                             tr.addView(tv);
-                            grplayout.addView(tr);
+                            usergrplayout.addView(tr);
                         }
                     }
                     @Override
@@ -83,11 +88,53 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Opens the new group dialog.
+     * Fetches all the groups from the firebase
+     * database and displays and creates a tablerow
+     * for each entry.
      */
-    private void openNewGrpDialog() {
-        Intent intent = new Intent(MainActivity.this, GroupEditActivity.class);
-        startActivity(intent);
+    private void fetchAllGroups() {
+        DatabaseTools.getGroupsReference().addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        allgrplayout.removeViewsInLayout(0, allgrplayout.getChildCount());
+                        for (final DataSnapshot child : dataSnapshot.getChildren()) {
+                            TableRow tr = new TableRow(MainActivity.this);
+                            TextView tv = new TextView(MainActivity.this);
+                            tv.setText("- " + child.getKey());
+                            tv.setTag(child.getKey());
+                            tv.setOnClickListener(new View.OnClickListener() {
+                                public void onClick(View view) {
+                                    joinGroup(child.getKey().toString());
+                                }
+                            });
+                            tr.addView(tv);
+                            allgrplayout.addView(tr);
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+    }
+
+    /**
+     * Asks the user if he/she wants to join the group.
+     *
+     * @param groupName Name of the group
+     */
+    private void joinGroup(final String groupName) {
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Join group.")
+                .setMessage("Do you want to join " + groupName + "?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        DatabaseTools.addUserToGroup(
+                                DatabaseTools.getCurrentFirebaseUser().getUid(), groupName);
+                        Toast.makeText(MainActivity.this, "Group joined!", Toast.LENGTH_SHORT).show();
+                    }})
+                .setNegativeButton(android.R.string.no, null).show();
     }
 
     /**
@@ -100,6 +147,14 @@ public class MainActivity extends AppCompatActivity {
         // SEND THE GROUP NAME TO THE GROUP ACTIVITY
         Intent intent = new Intent(MainActivity.this, GroupActivity.class);
         intent.putExtra(GroupActivity.KEY_EXTRA, groupName);
+        startActivity(intent);
+    }
+
+    /**
+     * Opens the new group dialog.
+     */
+    private void openNewGrpDialog() {
+        Intent intent = new Intent(MainActivity.this, GroupEditActivity.class);
         startActivity(intent);
     }
 

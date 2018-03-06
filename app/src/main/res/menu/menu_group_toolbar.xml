@@ -2,6 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
+        android:id="@+id/action_leavegrp"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="Leave Group"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_editgrp"
         android:icon="@android:drawable/ic_menu_preferences"
         android:title="Edit Group"

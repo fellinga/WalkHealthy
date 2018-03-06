@@ -183,13 +183,23 @@ public class GroupActivity extends AppCompatActivity {
                 finish();
                 return super.onOptionsItemSelected(item);
 
+            case R.id.action_leavegrp:
+                if (isCurrentUserAdmin()) {
+                    Toast.makeText(GroupActivity.this, "You can not leave your own group.", Toast.LENGTH_SHORT).show();
+                } else {
+                    DatabaseTools.removeUserFromGroup(DatabaseTools.getCurrentFirebaseUser().getUid(), group.getName());
+                    Toast.makeText(GroupActivity.this, "You left the group!", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                return true;
+
             case R.id.action_editgrp:
                 if (isCurrentUserAdmin()) {
                     Intent intent = new Intent(GroupActivity.this, GroupEditActivity.class);
                     intent.putExtra(GroupEditActivity.KEY_EXTRA, group.getName());
                     startActivityForResult(intent, 0);
                 } else {
-                    Toast.makeText(GroupActivity.this, "Insufficient rights.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GroupActivity.this, "Insufficient permissions.", Toast.LENGTH_SHORT).show();
                 }
                 return true;
 
@@ -197,7 +207,7 @@ public class GroupActivity extends AppCompatActivity {
                 if (isCurrentUserAdmin()) {
                     deleteGroup();
                 } else {
-                    Toast.makeText(GroupActivity.this, "Insufficient rights.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GroupActivity.this, "Insufficient permissions.", Toast.LENGTH_SHORT).show();
                 }
                 return true;
 

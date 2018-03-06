@@ -36,14 +36,40 @@
                     android:padding="10dp">
 
                     <TextView
-                        android:id="@+id/headMainGroups"
+                        android:id="@+id/headMainUserGroups"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/headMainGroups"
+                        android:text="@string/headMainUserGroups"
                         android:textSize="20sp" />
 
                     <TableLayout
-                        android:id="@+id/grplayout"
+                        android:id="@+id/usergrplayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                    </TableLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="20dp"
+                    android:background="@color/white"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/headMainAllGroups"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/headMainAllGroups"
+                        android:textSize="20sp" />
+
+                    <TableLayout
+                        android:id="@+id/allgrplayout"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 

@@ -30,11 +30,12 @@
     <string name="headSettBirthday">Birthday</string>
     <string name="headSettDeleteAcc">Delete Account</string>
     <string name="headGrpDeleteGrp">Delete Group</string>
-    <string name="headMainGroups">YOUR GROUPS</string>
+    <string name="headMainUserGroups">YOUR GROUPS</string>
+    <string name="headMainAllGroups">ALL GROUPS</string>
     <string name="headMainRecent">RECENT ACTIVITIES</string>
     <string name="headGrpMember">GROUP MEMBERS</string>
     <string name="headGrpName">GROUP NAME</string>
-    <string name="headGrpInvite">ALL USER</string>
-    <string name="headGrpCurrent">ADDED USER</string>
+    <string name="headGrpInvite">ALL USERS</string>
+    <string name="headGrpCurrent">ADDED USERS</string>
     <string name="todo">- TODO</string>
 </resources>
