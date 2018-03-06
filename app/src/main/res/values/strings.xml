@@ -34,6 +34,7 @@
     <string name="headMainRecent">RECENT ACTIVITIES</string>
     <string name="headGrpMember">GROUP MEMBERS</string>
     <string name="headGrpName">GROUP NAME</string>
-    <string name="headGrpInvite">INVITE MEMBERS</string>
+    <string name="headGrpInvite">ALL USER</string>
+    <string name="headGrpCurrent">ADDED USER</string>
     <string name="todo">- TODO</string>
 </resources>

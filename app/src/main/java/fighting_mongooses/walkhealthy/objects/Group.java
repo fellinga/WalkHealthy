@@ -40,6 +40,7 @@ public class Group {
     public Group(String name, String admin) {
         this.name = name;
         this.admin = admin;
+        addMember(admin);
     }
 
     /**

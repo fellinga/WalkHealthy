@@ -1,7 +1,5 @@
 package fighting_mongooses.walkhealthy.ui;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,18 +8,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import fighting_mongooses.walkhealthy.R;
-import fighting_mongooses.walkhealthy.objects.Group;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 
 /**
@@ -40,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
 
         FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.addGrpBtn);
@@ -64,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
         DatabaseTools.getUsersReference().child(DatabaseTools.getCurrentFirebaseUser().getUid()).child("groups")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot snapshot) {
+                    public void onDataChange(DataSnapshot dataSnapshot) {
                         grplayout.removeViewsInLayout(0, grplayout.getChildCount());
-                        for (DataSnapshot child : snapshot.getChildren()) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
                             TableRow tr = new TableRow(MainActivity.this);
                             TextView tv = new TextView(MainActivity.this);
                             tv.setText("- " + child.getKey());
@@ -108,6 +103,18 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * This method logs the user out and redirects
+     * to the main activity.
+     */
+    private void logoutUser() {
+        // Launching the login activity
+        DatabaseTools.logOffUser();
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     // Menu icons are inflated just as they were with actionbar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -134,17 +141,5 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
-    }
-
-    /**
-     * This method logs the user out and redirects
-     * to the main activity.
-     */
-    private void logoutUser() {
-        // Launching the login activity
-        DatabaseTools.logOffUser();
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        startActivity(intent);
-        finish();
     }
 }

@@ -2,9 +2,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
-        android:id="@+id/action_deletegrp"
+        android:id="@+id/action_editgrp"
         android:icon="@android:drawable/ic_menu_preferences"
-        android:title="Delete Group"
+        android:title="Edit Group"
         app:showAsAction="never" />
+
+    <item
+    android:id="@+id/action_deletegrp"
+    android:icon="@android:drawable/ic_menu_preferences"
+    android:title="Delete Group"
+    app:showAsAction="never" />
 
 </menu>

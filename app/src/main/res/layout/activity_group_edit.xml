@@ -7,7 +7,7 @@
     tools:context="fighting_mongooses.walkhealthy.ui.MainActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/groupEditToolbar"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/etsu_gold"
@@ -29,16 +29,16 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView"
+                    android:id="@+id/groupNameID"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/headGrpName"
                     android:textColor="@color/white"
-                    android:textSize="20dp" />
+                    android:textSize="20sp" />
 
                 <EditText
                     android:id="@+id/groupname"
@@ -49,25 +49,53 @@
                     android:inputType="textCapWords"
                     android:padding="10dp"
                     android:singleLine="true"
-                    android:textColor="@color/etsu_blue"
-                    android:textColorHint="@color/input_register_hint" />
+                    android:textColor="@color/etsu_blue" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/activeLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/headGrpCurrent"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+                <TableLayout
+                    android:id="@+id/addeduserlayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white">
+
+                </TableLayout>
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="20dp"
                 android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/btnSave"
+                <TextView
+                    android:id="@+id/inviteLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/white"
-                    android:text="SAVE"
-                    android:textAlignment="center"
-                    android:textColor="@color/red" />
+                    android:text="@string/headGrpInvite"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+                <TableLayout
+                    android:id="@+id/alluserlayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white">
+
+                </TableLayout>
 
             </LinearLayout>
 

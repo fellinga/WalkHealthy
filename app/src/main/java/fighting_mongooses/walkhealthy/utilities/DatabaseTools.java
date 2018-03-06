@@ -152,8 +152,14 @@ public final class DatabaseTools {
         }
 
         // TODO check if group exists
+
+        // CREATE GROUP
         groupsRef.child(group.getName()).setValue(group);
-        addUserToGroup(group.getAdmin(), group.getName());
+
+        // ADD EVERY USER TO THE GROUP
+        for (Map.Entry e : group.getMembers().entrySet()) {
+            addUserToGroup(e.getKey().toString(), group.getName());
+        }
         return true;
     }
 

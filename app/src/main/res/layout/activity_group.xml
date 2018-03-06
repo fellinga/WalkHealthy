@@ -7,7 +7,7 @@
     tools:context="fighting_mongooses.walkhealthy.ui.MainActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/groupToolbar"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/etsu_gold"
@@ -71,5 +71,15 @@
         </LinearLayout>
 
     </ScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/addGrpAcc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:tint="@color/common_google_signin_btn_text_dark_focused"
+        app:backgroundTint="@color/etsu_gold"
+        app:srcCompat="@android:drawable/ic_menu_add" />
 
 </android.support.design.widget.CoordinatorLayout>
