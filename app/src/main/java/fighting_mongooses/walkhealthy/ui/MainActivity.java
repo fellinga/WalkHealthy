@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
      * for each entry.
      */
     private void fetchUsersGroups() {
-        DatabaseTools.getUsersReference().child(DatabaseTools.getCurrentFirebaseUser().getUid()).child("groups")
+        DatabaseTools.getUsersReference().child(DatabaseTools.getFirebaseAuth().getCurrentUser().getUid()).child("groups")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
                         DatabaseTools.addUserToGroup(
-                                DatabaseTools.getCurrentFirebaseUser().getUid(), groupName);
+                                DatabaseTools.getFirebaseAuth().getCurrentUser().getUid(), groupName);
                         Toast.makeText(MainActivity.this, "Group joined!", Toast.LENGTH_SHORT).show();
                     }})
                 .setNegativeButton(android.R.string.no, null).show();
@@ -196,5 +196,23 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    /**
+     * Handles the back button
+     * on the device
+     */
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Exit app")
+                .setMessage("Do you want to close the app?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        finish();
+                    }})
+                .setNegativeButton(android.R.string.no, null).show();
     }
 }

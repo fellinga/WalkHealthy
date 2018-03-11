@@ -34,9 +34,6 @@ public class RegisterActivity extends Activity {
     private Button btnRegister, btnLinkToLogin;
     private EditText inputUsername, inputBirthday, inputEmail, inputPassword, inputConfirmPassword;
 
-    // Firebase
-    private FirebaseAuth mAuth;
-
     // Data Validation Constants
     private static final int MIN_USERNAME_LENGTH = 4;
     private static final int MAX_USERNAME_LENGTH = 128;
@@ -47,8 +44,6 @@ public class RegisterActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
-        mAuth = FirebaseAuth.getInstance();
 
         inputUsername = (EditText) findViewById(R.id.name);
         inputBirthday = (EditText) findViewById(R.id.birthday);
@@ -76,12 +71,8 @@ public class RegisterActivity extends Activity {
 
         // Link to Login Screen
         btnLinkToLogin.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(),
-                        LoginActivity.class);
-                startActivity(i);
-                finish();
+                openLoginActivity();
             }
         });
 
@@ -195,7 +186,7 @@ public class RegisterActivity extends Activity {
      * @param username The username for the new user
      */
     private void createUser(final String email, final String birthday, final String password, final String username) {
-        mAuth.createUserWithEmailAndPassword(email, password)
+        DatabaseTools.getFirebaseAuth().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -218,9 +209,30 @@ public class RegisterActivity extends Activity {
      * This method forwards the user to the
      * new user activity.
      */
+    private void openLoginActivity() {
+        startActivity(new Intent(this , LoginActivity.class));
+        finish();
+    }
+
+    /**
+     * This method forwards the user to the
+     * new user activity.
+     */
     private void openNewUserActivity() {
         startActivity(new Intent(this , NewUserActivity.class));
         finish();
+    }
+
+    /**
+     * Handles the back button
+     * on the device
+     */
+    @Override
+    public void onBackPressed() {
+        openLoginActivity();
+
+        // Otherwise defer to system default behavior.
+        super.onBackPressed();
     }
 
 }

@@ -66,8 +66,8 @@ public class GroupEditActivity extends AppCompatActivity {
             loadGrpData(getIntent().getStringExtra(KEY_EXTRA));
         } else {
             getSupportActionBar().setTitle("New group");
-            addUserToInvitedUsers(DatabaseTools.getCurrentFirebaseUser().getUid(),
-                    DatabaseTools.getCurrentFirebaseUser().getDisplayName());
+            addUserToInvitedUsers(DatabaseTools.getFirebaseAuth().getCurrentUser().getUid(),
+                    DatabaseTools.getFirebaseAuth().getCurrentUser().getDisplayName());
         }
 
         fetchAllUsers();
@@ -165,7 +165,7 @@ public class GroupEditActivity extends AppCompatActivity {
      * @param username Users username
      */
     private boolean removeUserFromInvitedUsers(final String uid, final String username) {
-        if (!DatabaseTools.getCurrentFirebaseUser().getUid().equals(uid)) {
+        if (!DatabaseTools.getFirebaseAuth().getCurrentUser().getUid().equals(uid)) {
             removedUsers.add(uid);
             for (int i = 0; i < addeduserlayout.getChildCount(); i++) {
                 TableRow tr = (TableRow) addeduserlayout.getChildAt(i);
@@ -186,7 +186,7 @@ public class GroupEditActivity extends AppCompatActivity {
      */
     private void createGroup() {
         String groupName = inputGroupname.getText().toString();
-        Group grp = new Group(groupName, DatabaseTools.getCurrentFirebaseUser().getUid());
+        Group grp = new Group(groupName, DatabaseTools.getFirebaseAuth().getCurrentUser().getUid());
 
         // remove all users from the database who got removed (only edit)
         for (String uid : removedUsers) {

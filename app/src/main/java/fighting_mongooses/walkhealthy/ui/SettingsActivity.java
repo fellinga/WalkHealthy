@@ -71,7 +71,7 @@ public class SettingsActivity extends AppCompatActivity {
      * database and displays it.
      */
     private void updateInfo() {
-        final FirebaseUser fbUser = DatabaseTools.getCurrentFirebaseUser();
+        final FirebaseUser fbUser = DatabaseTools.getFirebaseAuth().getCurrentUser();
         DatabaseTools.readUserData(fbUser.getUid(), new OnGetUserListener() {
             @Override
             public void onStart() {

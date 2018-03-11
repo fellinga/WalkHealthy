@@ -56,13 +56,11 @@ public final class DatabaseTools {
     private static final DatabaseReference groupsRef = mDatabase.getReference().child(GROUPS_PATH);
 
     /**
-     * Returns the current firebase user object.
+     * Returns the firebase authentication object.
      *
-     * @return    The current firebase user
+     * @return    The firebase authentication
      */
-    public static FirebaseUser getCurrentFirebaseUser() {
-        return mAuth.getCurrentUser();
-    }
+    public static FirebaseAuth getFirebaseAuth() { return mAuth; }
 
     /**
      * Returns the users database reference.
@@ -90,7 +88,7 @@ public final class DatabaseTools {
      * @param user   User object that should be added
      */
     public static void createUser(final User user) {
-        final FirebaseUser fbUser = getCurrentFirebaseUser();
+        final FirebaseUser fbUser = mAuth.getCurrentUser();
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                 .setDisplayName(user.getUsername()).build();
         fbUser.updateProfile(profileUpdates);
@@ -117,7 +115,7 @@ public final class DatabaseTools {
      * auth and firebase database section.
      */
     public static void deleteUser() {
-        final FirebaseUser fbUser = getCurrentFirebaseUser();
+        final FirebaseUser fbUser = mAuth.getCurrentUser();
         // REMOVE USER FROM ALL GROUPS
         groupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

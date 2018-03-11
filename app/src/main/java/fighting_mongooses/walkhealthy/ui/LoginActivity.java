@@ -1,8 +1,11 @@
 package fighting_mongooses.walkhealthy.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -33,14 +36,11 @@ import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 public class LoginActivity extends Activity {
 
     private EditText mEmailView, mPasswordView;
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        mAuth = FirebaseAuth.getInstance();
 
         // Set up the login form.
         mEmailView = (EditText) findViewById(R.id.email);
@@ -74,13 +74,21 @@ public class LoginActivity extends Activity {
                 finish();
             }
         });
+
+        Button btnForgotPassword = (Button) findViewById(R.id.btnForgotPassword);
+        btnForgotPassword.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View view) {
+                forgotPassword();
+            }
+        });
     }
 
     @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        final FirebaseUser fbUser = DatabaseTools.getCurrentFirebaseUser();
+        final FirebaseUser fbUser = DatabaseTools.getFirebaseAuth().getCurrentUser();
         if (fbUser != null) {
             openMainActivity();
         }
@@ -159,7 +167,7 @@ public class LoginActivity extends Activity {
      * @param password The email to check
      */
     private void signIn(String email, String password) {
-        mAuth.signInWithEmailAndPassword(email, password)
+        DatabaseTools.getFirebaseAuth().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -173,6 +181,39 @@ public class LoginActivity extends Activity {
                         }
                     }
                 });
+    }
+
+    /**
+     * This method asks the user for his email
+     * address and sends an email to reset the
+     * password.
+     */
+    private void forgotPassword() {
+        final AlertDialog.Builder inputAlert = new AlertDialog.Builder(this);
+        inputAlert.setTitle("Forgot password");
+        final EditText userInput = new EditText(this);
+        userInput.setHint("Enter your email address");
+        inputAlert.setView(userInput);
+        inputAlert.setPositiveButton("SEND INSTRUCTIONS", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String email = userInput.getText().toString();
+                if (isEmailValid(email)) {
+                    DatabaseTools.getFirebaseAuth().sendPasswordResetEmail(email);
+                    Toast.makeText(LoginActivity.this, "Email sent.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(LoginActivity.this, "Email not valid.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        inputAlert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alertDialog = inputAlert.create();
+        alertDialog.show();
     }
 
     /**

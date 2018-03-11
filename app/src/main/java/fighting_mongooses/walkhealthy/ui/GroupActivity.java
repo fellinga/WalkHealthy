@@ -158,7 +158,7 @@ public class GroupActivity extends AppCompatActivity {
      * Checks if the current user is group admin.
      */
     private boolean isCurrentUserAdmin() {
-        return DatabaseTools.getCurrentFirebaseUser().getUid().equals(group.getAdmin());
+        return DatabaseTools.getFirebaseAuth().getCurrentUser().getUid().equals(group.getAdmin());
     }
 
     @Override
@@ -187,7 +187,7 @@ public class GroupActivity extends AppCompatActivity {
                 if (isCurrentUserAdmin()) {
                     Toast.makeText(GroupActivity.this, "You can not leave your own group.", Toast.LENGTH_SHORT).show();
                 } else {
-                    DatabaseTools.removeUserFromGroup(DatabaseTools.getCurrentFirebaseUser().getUid(), group.getName());
+                    DatabaseTools.removeUserFromGroup(DatabaseTools.getFirebaseAuth().getCurrentUser().getUid(), group.getName());
                     Toast.makeText(GroupActivity.this, "You left the group!", Toast.LENGTH_SHORT).show();
                     finish();
                 }
