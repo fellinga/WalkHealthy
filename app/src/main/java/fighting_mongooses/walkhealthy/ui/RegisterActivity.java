@@ -191,9 +191,10 @@ public class RegisterActivity extends Activity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            User user = new User(username, birthday);
-                            DatabaseTools.createUser(user);
+                            // Sign in success - Firebase User created.
+                            DatabaseTools.updateCurrentUser(new User(username, birthday));
+                            DatabaseTools.addUserToGroup(DatabaseTools.getFirebaseAuth().
+                                    getCurrentUser().getUid(), DatabaseTools.ALLUSERS_GROUP);
 
                             openNewUserActivity();
                         } else {

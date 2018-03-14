@@ -9,7 +9,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import fighting_mongooses.walkhealthy.listener.OnGetGroupListener;
@@ -31,9 +30,9 @@ import fighting_mongooses.walkhealthy.objects.User;
  */
 public final class DatabaseTools {
 
-    private static final String USERS_PATH = "users";
-    private static final String GROUPS_PATH = "groups";
-    private static final String ALLUSERS_GROUP = "allusers";
+    public static final String USERS_PATH = "users";
+    public static final String GROUPS_PATH = "groups";
+    public static final String ALLUSERS_GROUP = "allusers";
 
     /**
      * Reference to the firebase authentication.
@@ -81,38 +80,24 @@ public final class DatabaseTools {
     }
 
     /**
-     * Adds the new user to the user reference.
-     * Also adds the new created user to the
-     * *allusers* group.
-     *
-     * @param user   User object that should be added
-     */
-    public static void createUser(final User user) {
-        final FirebaseUser fbUser = mAuth.getCurrentUser();
-        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                .setDisplayName(user.getUsername()).build();
-        fbUser.updateProfile(profileUpdates);
-        fbUser.sendEmailVerification();
-
-        usersRef.child(fbUser.getUid()).setValue(user);
-        addUserToGroup(fbUser.getUid(), ALLUSERS_GROUP);
-    }
-
-    /**
-     * Updates an existing user based on the userId.
+     * Updates an users profile
      *
      * @param user   User object that should be modified
+     * @return       true if user is updated false otherwise
      */
-    public static void updateCurrentUser(final User user) {
+    public static boolean updateCurrentUser(final User user) {
         final FirebaseUser fbUser = mAuth.getCurrentUser();
 
         // UPDATE USERNAME IN FIREBASE AUTHENTICATION
+        // TODO check for unique username - return false if duplicate
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                 .setDisplayName(user.getUsername()).build();
+        // ASYNC -> this might take a few seconds
         fbUser.updateProfile(profileUpdates);
 
         // UPDATE ALL OTHER FIELDS IN THE DATABASE USER OBJECT
         usersRef.child(fbUser.getUid()).setValue(user);
+        return true;
     }
 
     /**
