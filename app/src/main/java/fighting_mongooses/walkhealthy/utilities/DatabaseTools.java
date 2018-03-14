@@ -101,13 +101,38 @@ public final class DatabaseTools {
     /**
      * Updates an existing user based on the userId.
      *
-     * @param userId Users ID to find the user
      * @param user   User object that should be modified
      */
-    public static void updateUser(final String userId, final User user) {
-        // TODO Check if userID is valid
-        // TODO Check if username changed - if yes change firebase auth username
-        usersRef.child(userId).setValue(user);
+    public static void updateCurrentUser(final User user) {
+        final FirebaseUser fbUser = mAuth.getCurrentUser();
+
+        // UPDATE USERNAME IN FIREBASE AUTHENTICATION
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(user.getUsername()).build();
+        fbUser.updateProfile(profileUpdates);
+
+        // UPDATE ALL OTHER FIELDS IN THE DATABASE USER OBJECT
+        usersRef.child(fbUser.getUid()).setValue(user);
+    }
+
+    /**
+     * Updates an existing users email address
+     *
+     * @param newEmail Users new email
+     */
+    public static void updateCurrentUsersEmail(final String newEmail) {
+        final FirebaseUser fbUser = mAuth.getCurrentUser();
+        fbUser.updateEmail(newEmail);
+    }
+
+    /**
+     * Updates an existing users password
+     *
+     * @param newPassword Users new password
+     */
+    public static void updateCurrentUsersPassword(final String newPassword) {
+        final FirebaseUser fbUser = mAuth.getCurrentUser();
+        fbUser.updatePassword(newPassword);
     }
 
     /**
