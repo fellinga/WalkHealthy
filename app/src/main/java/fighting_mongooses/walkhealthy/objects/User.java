@@ -78,10 +78,18 @@ public class User {
 
 
     /**
-     * Setter for users birthday.
+     * Setter for user's birthday.
      * Assumes birthday has already been validated.
      */
     public void setBirthday(String b){
-        birthday = b;
+        this.birthday = b;
+    }
+
+    /**
+     * Setter for user's username.
+     * Assumes username has already been validated.
+     */
+    public void setUsername(String u){
+        this.username = u;
     }
 }

@@ -36,10 +36,14 @@ import fighting_mongooses.walkhealthy.utilities.VerificationTools;
 public class SettingsActivity extends AppCompatActivity {
 
     private Button deleteAccount;
+    private Button resetPassword;
     private TextView birthdayView, usernameView, emailView;
     private User user;
 
     private String newBirthdayText = "";
+    private String newPasswordText = "";
+    private String newUsernameText = "";
+    private String newEmailText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +64,18 @@ public class SettingsActivity extends AppCompatActivity {
         usernameView = (TextView) findViewById(R.id.username);
         emailView = (TextView) findViewById(R.id.email);
         deleteAccount = (Button) findViewById(R.id.deleteAcc);
+        resetPassword = (Button) findViewById(R.id.resetPassword);
 
         deleteAccount.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
                 deleteAccount();
+            }
+        });
+        resetPassword.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View view) {
+                resetPassword();
             }
         });
 
@@ -123,7 +134,14 @@ public class SettingsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+//region CHANGE BIRTHDAY
 
+    /*
+     * Asks the user to enter a new birthday. Creates a pop-up.
+     *
+     * @author Jake Gillenwater
+     * @param v     The view context of the text field clicked
+     */
     public void onClickBirthday(View v){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -153,6 +171,10 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
 
+    /*
+     * Actually handles the updating the users birthday to the local user object and the database
+     * @author Jake Gillenwater
+     */
     private void onChangeBirthday(){
 
         // Format the birthday to match what the confirmBirthday() is expecting
@@ -173,9 +195,217 @@ public class SettingsActivity extends AppCompatActivity {
 
         }
         else{
-            Toast.makeText(this, "Please enter a valid birthday - MMDDYYYY-"+newBirthdayText,
+            // TODO: Change this to a proper Strings value message
+            Toast.makeText(this, "Please enter a valid birthday - MMDDYYYY-",
                     Toast.LENGTH_SHORT).show();
         }
     }
+
+    //endregion
+
+//region RESET PASSWORD
+
+    /*
+     * Ask the user to create a new password, and confirms it.
+     * If verified, @see confirmPasswordReset().
+     * If not verified, will display a toast notification.
+     * @author Jake Gillenwater
+     */
+    private void resetPassword(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Reset Password");
+        // TODO: Set a message showing the requirements for a password
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                newPasswordText = input.getText().toString();
+                if(VerificationTools.confirmPassword(newPasswordText)){
+                    confirmPasswordReset();
+                }
+                else{
+                    // TODO: Change this to a proper Strings value message
+                    Toast.makeText(getApplicationContext(), "Please enter a valid password.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    /*
+     * Ask the user to re-enter their password.
+     * This is make sure the password does not contain a typo.
+     * If the passwords match, @see onPasswordReset
+     * @author Jake Gillenwater
+     * @see resetPassword()
+     */
+    private void confirmPasswordReset(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Reset Password - Confirm");
+        // TODO: Set a message explaining to re-enter the password
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(input.getText().toString().equals(newPasswordText)){
+                    onPasswordReset();
+                }
+                else{
+                    // TODO: Change this to a proper Strings value message
+                    Toast.makeText(getApplicationContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    /*
+     * Actually handles reseting the password in the database.
+     * @author Jake Gillenwater
+     */
+    private void onPasswordReset(){
+        DatabaseTools.updateCurrentUsersPassword(newPasswordText);
+    }
+
+//endregion
+
+//region CHANGE USERNAME
+
+    /*
+     * Asks the user to enter a new username. Creates a pop-up.
+     *
+     * @author Jake Gillenwater
+     * @param v     The view context of the text field clicked
+     */
+    public void onClickUsername(View v){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Username");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                newUsernameText = input.getText().toString();
+                onChangeUsername();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    /*
+     * Actually handles the updating the users username to the database
+     * @author Jake Gillenwater
+     */
+    private void onChangeUsername(){
+        if(VerificationTools.confirmUsername(newUsernameText)){
+            // Update local user object
+            this.user.setUsername(newUsernameText);
+            // Update UI
+            usernameView.setText(newUsernameText);
+            // Update in Database
+            DatabaseTools.updateCurrentUser(this.user);
+        }
+        else{
+            // TODO: Change this to a proper Strings value message
+            Toast.makeText(this, "Please enter a valid username",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+//endregion
+
+//region CHANGE EMAIL
+
+    /*
+         * Asks the user to enter a new email. Creates a pop-up.
+         *
+         * @author Jake Gillenwater
+         * @param v     The view context of the text field clicked
+         */
+    public void onClickEmail(View v){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Email");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                newEmailText = input.getText().toString();
+                onChangeEmail();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    /*
+     * Actually handles the updating the users Email to the database
+     * TODO: Send a new verification email to the New Email address. If the new Email is not confirmed within a certain time, it will keep the old Email.
+     * @author Jake Gillenwater
+     */
+    private void onChangeEmail(){
+        if(VerificationTools.confirmEmail(newEmailText)){
+            // Update Email
+            emailView.setText(newEmailText);
+            // Update database
+            DatabaseTools.updateCurrentUsersEmail(newEmailText);
+        }
+        else{
+            // TODO: Change this to a proper Strings value message
+            Toast.makeText(this, "Please enter a valid Email",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+//endregion
 
 }
