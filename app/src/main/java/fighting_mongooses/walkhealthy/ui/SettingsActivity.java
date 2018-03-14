@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.EditText;
+import android.text.InputType;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,6 +24,7 @@ import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.objects.User;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 import fighting_mongooses.walkhealthy.listener.OnGetUserListener;
+import fighting_mongooses.walkhealthy.utilities.VerificationTools;
 
 /**
  * Settings activity for user information
@@ -35,6 +38,8 @@ public class SettingsActivity extends AppCompatActivity {
     private Button deleteAccount;
     private TextView birthdayView, usernameView, emailView;
     private User user;
+
+    private String newBirthdayText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +121,61 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public void onClickBirthday(View v){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Birthday");
+        builder.setMessage("Format: MMDDYYYY");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_DATETIME | InputType.TYPE_DATETIME_VARIATION_DATE);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                newBirthdayText = input.getText().toString();
+                onChangeBirthday();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+
+    private void onChangeBirthday(){
+
+        // Format the birthday to match what the confirmBirthday() is expecting
+        StringBuilder sb = new StringBuilder(newBirthdayText);
+        sb.insert(2, "/");
+        sb.insert(5, "/");
+        newBirthdayText = sb.toString();
+
+        // Verify the birthdate
+        if(VerificationTools.confirmBirthday(newBirthdayText)){
+
+            // If valid, update the local user object's birthday
+            this.user.setBirthday(newBirthdayText);
+            // Update the UI
+            birthdayView.setText(newBirthdayText);
+            // Update the database
+            DatabaseTools.updateCurrentUser(this.user);
+
+        }
+        else{
+            Toast.makeText(this, "Please enter a valid birthday - MMDDYYYY-"+newBirthdayText,
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

@@ -75,4 +75,13 @@ public class User {
     public String getBirthday() {
         return birthday;
     }
+
+
+    /**
+     * Setter for users birthday.
+     * Assumes birthday has already been validated.
+     */
+    public void setBirthday(String b){
+        birthday = b;
+    }
 }

@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.objects.User;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
+import fighting_mongooses.walkhealthy.utilities.VerificationTools;
 
 /**
  * Register activity for user registration.
@@ -34,11 +35,6 @@ public class RegisterActivity extends Activity {
     private Button btnRegister, btnLinkToLogin;
     private EditText inputUsername, inputBirthday, inputEmail, inputPassword, inputConfirmPassword;
 
-    // Data Validation Constants
-    private static final int MIN_USERNAME_LENGTH = 4;
-    private static final int MAX_USERNAME_LENGTH = 128;
-    private static final int MIN_PASSWORD_LENGTH = 8;
-    private static final int MAX_PASSWORD_LENGTH = 64;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,71 +89,27 @@ public class RegisterActivity extends Activity {
         // TODO: Move these literal strings into the "strings.xml" file, and then pull them from there.
         // Confirm each field
         // Return false with a toast notification upon failure to verify
-        if(!confirmUsername(username)){
+        if(!VerificationTools.confirmUsername(username)){
             return returnWithToastPost(false, "Please enter a valid username.");
         }
-        else if (!confirmBirthday(birthday)){
+        else if (!VerificationTools.confirmBirthday(birthday)){
             return returnWithToastPost(false, "Please enter a valid MM/DD/YYYY birthday.");
         }
-        else if (!confirmEmail(email)){
+        else if (!VerificationTools.confirmEmail(email)){
             return returnWithToastPost(false, "Please enter a valid Email address.");
         }
         else if (!password.equals(passwordConfirm)){
             return returnWithToastPost(false, "Passwords do not match.");
         }
-        else if (!confirmPassword(password)){
-            return returnWithToastPost(false, "Please enter a valid password, " + MIN_PASSWORD_LENGTH +
-                                                             "-" + MAX_PASSWORD_LENGTH + " characters long.");
+        else if (!VerificationTools.confirmPassword(password)){
+            return returnWithToastPost(false, "Please enter a valid password, " + VerificationTools.MIN_PASSWORD_LENGTH +
+                                                             "-" + VerificationTools.MAX_PASSWORD_LENGTH + " characters long.");
         }
         // If it cannot be proven false, it must be true!
         return true;
     }
 
-    /**
-     * Verifies the input of a Birthday. Checks if it satisfies a simple REGEX of ##/##/####
-     * @author Jake Gillenwater
-     * @param birthday The date string to check against
-     * @return  True - if valid, False - if there is a problem with it.
-     */
-    private boolean confirmBirthday(String birthday){
-        // TODO: Verify based on age as well. No one over 100, under TBT, or from the future
-        // TODO: Verify this is an actual date (i.e. no 67th month, no June 34th)
-        Pattern p = Pattern.compile("[\\d]{1,2}/[\\d]{1,2}/[\\d]{4}");
-        Matcher m = p.matcher(birthday);
-        return m.matches();
-    }
 
-    /**
-     * Verifies the input of an Email address. Checks if satisfies a simple REGEX.
-     * @author Jake Gillenwater
-     * @param email     The Email to check against
-     * @return      True - if valid, False - if there is a problem with it.
-     */
-    private boolean confirmEmail(String email){
-        Pattern p = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(email);
-        return m.matches();
-    }
-
-    /**
-     * Verifies the input of a password. Checks if is a proper length.
-     * @author Jake Gillenwater
-     * @param password The password to check against
-     * @return  True - if valid, False- if there is a problem with it.
-     */
-    private boolean confirmPassword(String password){
-        return (password.length() >= MIN_PASSWORD_LENGTH && password.length() <= MAX_PASSWORD_LENGTH);
-    }
-
-    /**
-     * Verifies the input of a user name. Checks if contains a value, and has a proper length.
-     * @author Jake Gillenwater
-     * @param username  The username to check against
-     * @return  True - if valid, False - if there is a problem with it.
-     */
-    private boolean confirmUsername(String username){
-        return (!username.isEmpty() && username.length() > MIN_USERNAME_LENGTH && username.length() <= MAX_USERNAME_LENGTH);
-    }
 
     /**
      * Displays a toast notification, then returns a copy of the given value.

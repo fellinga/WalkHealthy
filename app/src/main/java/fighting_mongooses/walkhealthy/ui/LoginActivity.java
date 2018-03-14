@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
+import fighting_mongooses.walkhealthy.utilities.VerificationTools;
 
 /**
  * Login and app start activity
@@ -113,7 +114,7 @@ public class LoginActivity extends Activity {
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password) && !VerificationTools.confirmPassword(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -124,7 +125,7 @@ public class LoginActivity extends Activity {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        } else if (!VerificationTools.confirmEmail(email)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -135,26 +136,6 @@ public class LoginActivity extends Activity {
         } else {
             signIn(mEmailView.getText().toString(), mPasswordView.getText().toString());
         }
-    }
-
-    /**
-     * This method checks if the given email address is valid.
-     *
-     * @param email The email to check
-     * @return      True if email is valid false otherwise
-     */
-    private boolean isEmailValid(String email) {
-        return email.contains("@") && email.contains(".");
-    }
-
-    /**
-     * This method checks if the given password is valid.
-     *
-     * @param password The password to check
-     * @return         True if password is valid false otherwise
-     */
-    private boolean isPasswordValid(String password) {
-        return password.length() > 7;
     }
 
     /**
@@ -198,7 +179,7 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String email = userInput.getText().toString();
-                if (isEmailValid(email)) {
+                if (VerificationTools.confirmEmail(email)) {
                     DatabaseTools.getFirebaseAuth().sendPasswordResetEmail(email);
                     Toast.makeText(LoginActivity.this, "Email sent.", Toast.LENGTH_SHORT).show();
                 } else {
