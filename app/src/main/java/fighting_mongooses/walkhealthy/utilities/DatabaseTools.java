@@ -1,5 +1,16 @@
 package fighting_mongooses.walkhealthy.utilities;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.support.annotation.NonNull;
+import android.util.Log;
+import android.widget.EditText;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -15,6 +26,7 @@ import fighting_mongooses.walkhealthy.listener.OnGetGroupListener;
 import fighting_mongooses.walkhealthy.listener.OnGetUserListener;
 import fighting_mongooses.walkhealthy.objects.Group;
 import fighting_mongooses.walkhealthy.objects.User;
+import fighting_mongooses.walkhealthy.ui.SettingsActivity;
 
 /**
  * Helper class for database requests
@@ -98,26 +110,6 @@ public final class DatabaseTools {
         // UPDATE ALL OTHER FIELDS IN THE DATABASE USER OBJECT
         usersRef.child(fbUser.getUid()).setValue(user);
         return true;
-    }
-
-    /**
-     * Updates an existing users email address
-     *
-     * @param newEmail Users new email
-     */
-    public static void updateCurrentUsersEmail(final String newEmail) {
-        final FirebaseUser fbUser = mAuth.getCurrentUser();
-        fbUser.updateEmail(newEmail);
-    }
-
-    /**
-     * Updates an existing users password
-     *
-     * @param newPassword Users new password
-     */
-    public static void updateCurrentUsersPassword(final String newPassword) {
-        final FirebaseUser fbUser = mAuth.getCurrentUser();
-        fbUser.updatePassword(newPassword);
     }
 
     /**

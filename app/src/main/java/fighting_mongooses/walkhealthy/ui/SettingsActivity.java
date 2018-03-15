@@ -4,9 +4,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -15,9 +16,11 @@ import android.widget.Toast;
 import android.widget.EditText;
 import android.text.InputType;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
 import fighting_mongooses.walkhealthy.R;
@@ -35,8 +38,7 @@ import fighting_mongooses.walkhealthy.utilities.VerificationTools;
  */
 public class SettingsActivity extends AppCompatActivity {
 
-    private Button deleteAccount;
-    private Button resetPassword;
+    private Button deleteAccount, resetPassword;
     private TextView birthdayView, usernameView, emailView;
     private User user;
 
@@ -136,11 +138,10 @@ public class SettingsActivity extends AppCompatActivity {
 
 //region CHANGE BIRTHDAY
 
-    /*
+    /**
      * Asks the user to enter a new birthday. Creates a pop-up.
      *
      * @author Jake Gillenwater
-     * @param v     The view context of the text field clicked
      */
     public void onClickBirthday(View v){
 
@@ -171,7 +172,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
 
-    /*
+    /**
      * Actually handles the updating the users birthday to the local user object and the database
      * @author Jake Gillenwater
      */
@@ -183,16 +184,13 @@ public class SettingsActivity extends AppCompatActivity {
         sb.insert(5, "/");
         newBirthdayText = sb.toString();
 
-        // Verify the birthdate
+        // Verify the birth date
         if(VerificationTools.confirmBirthday(newBirthdayText)){
-
-            // If valid, update the local user object's birthday
-            this.user.setBirthday(newBirthdayText);
-            // Update the UI
-            birthdayView.setText(newBirthdayText);
             // Update the database
+            this.user.setBirthday(newBirthdayText);
             DatabaseTools.updateCurrentUser(this.user);
-
+            // Reload info
+            updateInfo();
         }
         else{
             // TODO: Change this to a proper Strings value message
@@ -205,7 +203,7 @@ public class SettingsActivity extends AppCompatActivity {
 
 //region RESET PASSWORD
 
-    /*
+    /**
      * Ask the user to create a new password, and confirms it.
      * If verified, @see confirmPasswordReset().
      * If not verified, will display a toast notification.
@@ -213,14 +211,14 @@ public class SettingsActivity extends AppCompatActivity {
      */
     private void resetPassword(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Reset Password");
+        builder.setTitle("New Password:");
         // TODO: Set a message showing the requirements for a password
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         builder.setView(input);
 
-        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 newPasswordText = input.getText().toString();
@@ -244,27 +242,58 @@ public class SettingsActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /*
+    /**
      * Ask the user to re-enter their password.
      * This is make sure the password does not contain a typo.
      * If the passwords match, @see onPasswordReset
      * @author Jake Gillenwater
-     * @see resetPassword()
      */
     private void confirmPasswordReset(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Reset Password - Confirm");
+        builder.setTitle("Confirm New Password:");
         // TODO: Set a message explaining to re-enter the password
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         builder.setView(input);
 
-        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(input.getText().toString().equals(newPasswordText)){
-                    onPasswordReset();
+                    // Update database
+                    final FirebaseUser fbUser = DatabaseTools.getFirebaseAuth().getCurrentUser();
+                    final String currentEmail = fbUser.getEmail();
+
+                    final AlertDialog.Builder inputAlert = new AlertDialog.Builder(SettingsActivity.this);
+                    inputAlert.setTitle("Re authenticate");
+                    final EditText passwordInput = new EditText(SettingsActivity.this);
+                    passwordInput.setHint("Your current password");
+                    inputAlert.setView(passwordInput);
+                    inputAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            AuthCredential credential = EmailAuthProvider
+                                    .getCredential(currentEmail, passwordInput.getText().toString());
+
+                            fbUser.reauthenticate(credential)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            fbUser.updatePassword(newPasswordText);
+                                            Toast.makeText(getApplicationContext(), "Password changed.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        }
+                    });
+                    inputAlert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog alertDialog = inputAlert.create();
+                    alertDialog.show();
                 }
                 else{
                     // TODO: Change this to a proper Strings value message
@@ -283,19 +312,11 @@ public class SettingsActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /*
-     * Actually handles reseting the password in the database.
-     * @author Jake Gillenwater
-     */
-    private void onPasswordReset(){
-        DatabaseTools.updateCurrentUsersPassword(newPasswordText);
-    }
-
 //endregion
 
 //region CHANGE USERNAME
 
-    /*
+    /**
      * Asks the user to enter a new username. Creates a pop-up.
      *
      * @author Jake Gillenwater
@@ -304,7 +325,7 @@ public class SettingsActivity extends AppCompatActivity {
     public void onClickUsername(View v){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Username");
+        builder.setTitle("New Username:");
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -328,18 +349,18 @@ public class SettingsActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /*
+    /**
      * Actually handles the updating the users username to the database
      * @author Jake Gillenwater
      */
     private void onChangeUsername(){
         if(VerificationTools.confirmUsername(newUsernameText)){
-            // Update local user object
-            this.user.setUsername(newUsernameText);
-            // Update UI
-            usernameView.setText(newUsernameText);
             // Update in Database
+            this.user.setUsername(newUsernameText);
             DatabaseTools.updateCurrentUser(this.user);
+            // Reload info
+            updateInfo();
+            Toast.makeText(getApplicationContext(), "Username changed.", Toast.LENGTH_SHORT).show();
         }
         else{
             // TODO: Change this to a proper Strings value message
@@ -353,16 +374,16 @@ public class SettingsActivity extends AppCompatActivity {
 
 //region CHANGE EMAIL
 
-    /*
-         * Asks the user to enter a new email. Creates a pop-up.
-         *
-         * @author Jake Gillenwater
-         * @param v     The view context of the text field clicked
-         */
+    /**
+     * Asks the user to enter a new email. Creates a pop-up.
+     *
+     * @author Jake Gillenwater
+     * @param v     The view context of the text field clicked
+     */
     public void onClickEmail(View v){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Email");
+        builder.setTitle("New Email:");
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -386,17 +407,52 @@ public class SettingsActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /*
+    /**
      * Actually handles the updating the users Email to the database
      * TODO: Send a new verification email to the New Email address. If the new Email is not confirmed within a certain time, it will keep the old Email.
      * @author Jake Gillenwater
      */
     private void onChangeEmail(){
         if(VerificationTools.confirmEmail(newEmailText)){
-            // Update Email
-            emailView.setText(newEmailText);
             // Update database
-            DatabaseTools.updateCurrentUsersEmail(newEmailText);
+            final FirebaseUser fbUser = DatabaseTools.getFirebaseAuth().getCurrentUser();
+            final String currentEmail = fbUser.getEmail();
+
+            final AlertDialog.Builder inputAlert = new AlertDialog.Builder(this);
+            inputAlert.setTitle("Re authenticate");
+            final EditText passwordInput = new EditText(this);
+            passwordInput.setHint("Your current password");
+            inputAlert.setView(passwordInput);
+            inputAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    AuthCredential credential = EmailAuthProvider
+                            .getCredential(currentEmail, passwordInput.getText().toString());
+
+                    fbUser.reauthenticate(credential)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    fbUser.updateEmail(newEmailText)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    updateInfo();
+                                                    Toast.makeText(getApplicationContext(), "Email changed.", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                }
+                            });
+                }
+            });
+            inputAlert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog alertDialog = inputAlert.create();
+            alertDialog.show();
         }
         else{
             // TODO: Change this to a proper Strings value message
