@@ -43,7 +43,7 @@
                     android:textSize="20sp" />
 
                 <TableLayout
-                    android:id="@+id/memberlayout"
+                    android:id="@+id/membersLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
@@ -60,11 +60,18 @@
                 android:padding="10dp">
 
                 <TextView
-                    android:id="@+id/dummyID"
+                    android:id="@+id/headGroupEvents"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/headMainRecent"
+                    android:text="@string/headGroupEvents"
                     android:textSize="20sp" />
+
+                <TableLayout
+                    android:id="@+id/eventsLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                </TableLayout>
 
             </LinearLayout>
 
@@ -79,6 +86,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:tint="@color/common_google_signin_btn_text_dark_focused"
+        android:visibility="invisible"
         app:backgroundTint="@color/etsu_gold"
         app:srcCompat="@android:drawable/ic_menu_add" />
 

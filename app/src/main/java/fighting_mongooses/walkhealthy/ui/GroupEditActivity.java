@@ -66,8 +66,6 @@ public class GroupEditActivity extends AppCompatActivity {
             loadGrpData(getIntent().getStringExtra(KEY_EXTRA));
         } else {
             getSupportActionBar().setTitle("New group");
-            addUserToInvitedUsers(DatabaseTools.getFirebaseAuth().getCurrentUser().getUid(),
-                    DatabaseTools.getFirebaseAuth().getCurrentUser().getDisplayName());
         }
 
         fetchAllUsers();
@@ -77,12 +75,15 @@ public class GroupEditActivity extends AppCompatActivity {
      * Loads all users from the database
      */
     private void fetchAllUsers() {
-        DatabaseTools.getUsersReference().addValueEventListener(new ValueEventListener() {
+        DatabaseTools.getDbUsersReference().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 alluserlayout.removeViewsInLayout(0, alluserlayout.getChildCount());
                 for (final DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     final User user = snapshot.getValue(User.class);
+                    if (snapshot.getKey().equals(DatabaseTools.getCurrentUsersUid())) {
+                        addUserToInvitedUsers(DatabaseTools.getCurrentUsersUid(), user.getUsername());
+                    }
                     TableRow tr = new TableRow(GroupEditActivity.this);
                     TextView tv = new TextView(GroupEditActivity.this);
                     tv.setText(user.getUsername());
@@ -116,7 +117,7 @@ public class GroupEditActivity extends AppCompatActivity {
         inputGroupname.setFocusable(false);
 
         // LOAD GROUP MEMBER
-        DatabaseTools.getUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseTools.getDbUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (final DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -165,7 +166,7 @@ public class GroupEditActivity extends AppCompatActivity {
      * @param username Users username
      */
     private boolean removeUserFromInvitedUsers(final String uid, final String username) {
-        if (!DatabaseTools.getFirebaseAuth().getCurrentUser().getUid().equals(uid)) {
+        if (!DatabaseTools.getCurrentUsersUid().equals(uid)) {
             removedUsers.add(uid);
             for (int i = 0; i < addeduserlayout.getChildCount(); i++) {
                 TableRow tr = (TableRow) addeduserlayout.getChildAt(i);
@@ -186,7 +187,7 @@ public class GroupEditActivity extends AppCompatActivity {
      */
     private void createGroup() {
         String groupName = inputGroupname.getText().toString();
-        Group grp = new Group(groupName, DatabaseTools.getFirebaseAuth().getCurrentUser().getUid());
+        Group grp = new Group(groupName, DatabaseTools.getCurrentUsersUid());
 
         // remove all users from the database who got removed (only edit)
         for (String uid : removedUsers) {

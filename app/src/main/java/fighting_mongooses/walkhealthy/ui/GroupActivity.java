@@ -3,6 +3,7 @@ package fighting_mongooses.walkhealthy.ui;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -41,7 +42,8 @@ public class GroupActivity extends AppCompatActivity {
 
     private Group group;
     private Toolbar groupToolbar;
-    private TableLayout memberlayout;
+    private TableLayout membersLayout, eventsLayout;
+    private FloatingActionButton myFab;
     private List<User> groupMembers = new ArrayList<>();
 
     @Override
@@ -58,14 +60,9 @@ public class GroupActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.addGrpAcc);
-        myFab.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // CREATE A NEW GROUP EVENT
-            }
-        });
-
-        memberlayout = (TableLayout) findViewById(R.id.memberlayout);
+        myFab = (FloatingActionButton) findViewById(R.id.addGrpAcc);
+        membersLayout = (TableLayout) findViewById(R.id.membersLayout);
+        eventsLayout = (TableLayout) findViewById(R.id.eventsLayout);
 
         if (getIntent().hasExtra(KEY_EXTRA)) {
             readGroupData();
@@ -90,7 +87,9 @@ public class GroupActivity extends AppCompatActivity {
                 GroupActivity.this.group = group;
                 groupToolbar.setTitle(group.getName().toUpperCase());
                 groupToolbar.setSubtitle("Walk Healthy Group");
-                fetchUsers();
+                checkAdmin();
+                fetchMembers();
+                fetchEvents();
             }
 
             @Override
@@ -101,11 +100,25 @@ public class GroupActivity extends AppCompatActivity {
     }
 
     /**
-     * Gets all group members and adds them
-     * to the users lists.
+     * Adds the fabs button and its functionality.
      */
-    private void fetchUsers() {
-        memberlayout.removeViews(0, memberlayout.getChildCount());
+    private void checkAdmin() {
+        if (isCurrentUserAdmin()) {
+            myFab.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    openNewEventDialog();
+                }
+            });
+            myFab.show();
+        }
+    }
+
+    /**
+     * Gets all group members and adds them
+     * to the members lists.
+     */
+    private void fetchMembers() {
+        membersLayout.removeViews(0, membersLayout.getChildCount());
         for (Map.Entry<String, String> entry : group.getMembers().entrySet()) {
             DatabaseTools.readUserData(entry.getKey(), new OnGetUserListener() {
                 @Override
@@ -120,7 +133,7 @@ public class GroupActivity extends AppCompatActivity {
                     TextView tv = new TextView(GroupActivity.this);
                     tv.setText("- " + user.getUsername());
                     tr.addView(tv);
-                    memberlayout.addView(tr);
+                    membersLayout.addView(tr);
                 }
 
                 @Override
@@ -129,6 +142,53 @@ public class GroupActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    /**
+     * Gets all group events and adds them
+     * to the events lists.
+     */
+    private void fetchEvents() {
+        eventsLayout.removeViews(0, eventsLayout.getChildCount());
+        for (final Map.Entry<String, String> entry : group.getEvents().entrySet()) {
+            TableRow tr = new TableRow(GroupActivity.this);
+            TextView tv = new TextView(GroupActivity.this);
+            tv.setText("Event: " + entry.getKey());
+            if (isCurrentUserAdmin()) {
+                tv.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View view) {
+                        DatabaseTools.removeEvent(entry.getKey(), group.getName());
+                        readGroupData();
+                    }
+                });
+            }
+            tr.addView(tv);
+            eventsLayout.addView(tr);
+        }
+    }
+
+    /**
+     * Adds a new events
+     */
+    private void openNewEventDialog() {
+        final AlertDialog.Builder inputAlert = new AlertDialog.Builder(this);
+        inputAlert.setTitle("Do you want to create a new event?");
+        inputAlert.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DatabaseTools.createEvent(group.getName());
+                readGroupData();
+                Toast.makeText(GroupActivity.this, "Event created.", Toast.LENGTH_SHORT).show();
+            }
+        });
+        inputAlert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alertDialog = inputAlert.create();
+        alertDialog.show();
     }
 
     /**
@@ -158,7 +218,7 @@ public class GroupActivity extends AppCompatActivity {
      * Checks if the current user is group admin.
      */
     private boolean isCurrentUserAdmin() {
-        return DatabaseTools.getFirebaseAuth().getCurrentUser().getUid().equals(group.getAdmin());
+        return DatabaseTools.getCurrentUsersUid().equals(group.getAdmin());
     }
 
     @Override
@@ -187,7 +247,7 @@ public class GroupActivity extends AppCompatActivity {
                 if (isCurrentUserAdmin()) {
                     Toast.makeText(GroupActivity.this, "You can not leave your own group.", Toast.LENGTH_SHORT).show();
                 } else {
-                    DatabaseTools.removeUserFromGroup(DatabaseTools.getFirebaseAuth().getCurrentUser().getUid(), group.getName());
+                    DatabaseTools.removeUserFromGroup(DatabaseTools.getCurrentUsersUid(), group.getName());
                     Toast.makeText(GroupActivity.this, "You left the group!", Toast.LENGTH_SHORT).show();
                     finish();
                 }

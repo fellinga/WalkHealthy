@@ -12,10 +12,6 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.objects.User;
@@ -145,8 +141,7 @@ public class RegisterActivity extends Activity {
                         if (task.isSuccessful()) {
                             // Sign in success - Firebase User created.
                             DatabaseTools.updateCurrentUser(new User(username, birthday));
-                            DatabaseTools.addUserToGroup(DatabaseTools.getFirebaseAuth().
-                                    getCurrentUser().getUid(), DatabaseTools.ALLUSERS_GROUP);
+                            DatabaseTools.addUserToGroup(DatabaseTools.getCurrentUsersUid(), DatabaseTools.ALL_USERS_GROUP);
 
                             openNewUserActivity();
                         } else {

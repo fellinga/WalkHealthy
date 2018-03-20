@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
      * for each entry.
      */
     private void fetchUsersGroups() {
-        DatabaseTools.getUsersReference().child(DatabaseTools.getFirebaseAuth().getCurrentUser().getUid()).child("groups")
+        DatabaseTools.getDbUsersReference().child(DatabaseTools.getCurrentUsersUid()).child("groups")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
      * for each entry.
      */
     private void fetchAllGroups() {
-        DatabaseTools.getGroupsReference().addValueEventListener(new ValueEventListener() {
+        DatabaseTools.getDbGroupsReference().addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         allgrplayout.removeViewsInLayout(0, allgrplayout.getChildCount());
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
                         DatabaseTools.addUserToGroup(
-                                DatabaseTools.getFirebaseAuth().getCurrentUser().getUid(), groupName);
+                                DatabaseTools.getCurrentUsersUid(), groupName);
                         Toast.makeText(MainActivity.this, "Group joined!", Toast.LENGTH_SHORT).show();
                     }})
                 .setNegativeButton(android.R.string.no, null).show();

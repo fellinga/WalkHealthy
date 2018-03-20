@@ -28,6 +28,11 @@ public class Group {
     private Map<String,String> members = new HashMap<>();
 
     /**
+     * Map contains all events of this group.
+     */
+    private Map<String,String> events = new HashMap<>();
+
+    /**
      * Empty Class constructor. (Needed for Firebase)
      */
     public Group() {
@@ -41,22 +46,6 @@ public class Group {
         this.name = name;
         this.admin = admin;
         addMember(admin);
-    }
-
-    /**
-     * Method to add members to the group.
-     */
-    public void addMember(String userID) {
-        members.put(userID, "true");
-    }
-
-    /**
-     * Method to get all members the group has.
-     *
-     * @return      the members map.
-     */
-    public Map<String, String> getMembers() {
-        return new HashMap<>(members);
     }
 
     /**
@@ -75,5 +64,37 @@ public class Group {
      */
     public String getAdmin() {
         return admin;
+    }
+
+    /**
+     * Method to add members to the group.
+     */
+    public void addMember(String userId) {
+        members.put(userId, "true");
+    }
+
+    /**
+     * Method to get all members the group has.
+     *
+     * @return      the members map.
+     */
+    public Map<String, String> getMembers() {
+        return new HashMap<>(members);
+    }
+
+    /**
+     * Method to add event to the group.
+     */
+    public void addEvent(String eventId) {
+        events.put(eventId, "true");
+    }
+
+    /**
+     * Method to get all events the group has.
+     *
+     * @return      the events map.
+     */
+    public Map<String, String> getEvents() {
+        return new HashMap<>(events);
     }
 }

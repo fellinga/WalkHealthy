@@ -3,25 +3,35 @@ package fighting_mongooses.walkhealthy.ui;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.EditText;
 import android.text.InputType;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
+import java.io.IOException;
 
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.objects.User;
@@ -38,8 +48,12 @@ import fighting_mongooses.walkhealthy.utilities.VerificationTools;
  */
 public class SettingsActivity extends AppCompatActivity {
 
+    public static final int PICK_IMAGE = 1;
+
     private Button deleteAccount, resetPassword;
     private TextView birthdayView, usernameView, emailView;
+    private ImageView profilePic;
+    private FloatingActionButton fab;
     private User user;
 
     private String newBirthdayText = "";
@@ -67,9 +81,15 @@ public class SettingsActivity extends AppCompatActivity {
         emailView = (TextView) findViewById(R.id.email);
         deleteAccount = (Button) findViewById(R.id.deleteAcc);
         resetPassword = (Button) findViewById(R.id.resetPassword);
+        profilePic = (ImageView) findViewById(R.id.profilePic);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
+        fab.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                openFilePicker();
+            }
+        });
         deleteAccount.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View view) {
                 deleteAccount();
             }
@@ -82,6 +102,7 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         updateInfo();
+        getProfilePicture();
     }
 
     /**
@@ -89,8 +110,7 @@ public class SettingsActivity extends AppCompatActivity {
      * database and displays it.
      */
     private void updateInfo() {
-        final FirebaseUser fbUser = DatabaseTools.getFirebaseAuth().getCurrentUser();
-        DatabaseTools.readUserData(fbUser.getUid(), new OnGetUserListener() {
+        DatabaseTools.readUserData(DatabaseTools.getCurrentUsersUid(), new OnGetUserListener() {
             @Override
             public void onStart() {
                 // TODO BLOCK GUI WHILE USER OBJECT IS LOADING
@@ -101,7 +121,7 @@ public class SettingsActivity extends AppCompatActivity {
                 SettingsActivity.this.user = user;
                 birthdayView.setText(user.getBirthday());
                 usernameView.setText(user.getUsername());
-                emailView.setText(fbUser.getEmail());
+                emailView.setText(DatabaseTools.getCurrentUsersEmail());
             }
 
             @Override
@@ -111,6 +131,41 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
+    private void getProfilePicture() {
+        try {
+            final File localFile = File.createTempFile("images", "jpg");
+            DatabaseTools.getProfilePicture(DatabaseTools.getCurrentUsersUid(), localFile)
+                    .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            Bitmap myBitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                            profilePic.setImageBitmap(myBitmap);
+                            profilePic.setScaleType(ImageView.ScaleType.FIT_XY);
+                            profilePic.requestLayout();
+                        }
+                    });
+        } catch (Exception e) {
+            // File not created
+        }
+    }
+
+    /**
+     * Opens a file picker dialog so that
+     * the user can pick a profile picture.
+     * This intent returns in onActivityResult()
+     * where the picture gets finally set.
+     */
+    private void openFilePicker() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
+    }
+
+    /**
+     * Displays a alert box to confirm that
+     * the user wants to delete the account.
+     */
     private void deleteAccount() {
         new AlertDialog.Builder(SettingsActivity.this)
                 .setTitle("Delete Account.")
@@ -124,6 +179,20 @@ public class SettingsActivity extends AppCompatActivity {
                         finish();
                     }})
                 .setNegativeButton(android.R.string.no, null).show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if (requestCode == PICK_IMAGE && data != null) {
+                DatabaseTools.setProfilePicture(data.getData())
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            getProfilePicture();
+                        }
+                    });
+        }
     }
 
     @Override
@@ -263,7 +332,7 @@ public class SettingsActivity extends AppCompatActivity {
                 if(input.getText().toString().equals(newPasswordText)){
                     // Update database
                     final FirebaseUser fbUser = DatabaseTools.getFirebaseAuth().getCurrentUser();
-                    final String currentEmail = fbUser.getEmail();
+                    final String currentEmail = DatabaseTools.getCurrentUsersEmail();
 
                     final AlertDialog.Builder inputAlert = new AlertDialog.Builder(SettingsActivity.this);
                     inputAlert.setTitle("Re authenticate");
@@ -416,7 +485,7 @@ public class SettingsActivity extends AppCompatActivity {
         if(VerificationTools.confirmEmail(newEmailText)){
             // Update database
             final FirebaseUser fbUser = DatabaseTools.getFirebaseAuth().getCurrentUser();
-            final String currentEmail = fbUser.getEmail();
+            final String currentEmail = DatabaseTools.getCurrentUsersEmail();
 
             final AlertDialog.Builder inputAlert = new AlertDialog.Builder(this);
             inputAlert.setTitle("Re authenticate");

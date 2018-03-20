@@ -1,32 +1,30 @@
 package fighting_mongooses.walkhealthy.utilities;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.support.annotation.NonNull;
-import android.util.Log;
-import android.widget.EditText;
+import android.net.Uri;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.util.Map;
 
 import fighting_mongooses.walkhealthy.listener.OnGetGroupListener;
 import fighting_mongooses.walkhealthy.listener.OnGetUserListener;
+import fighting_mongooses.walkhealthy.objects.Event;
 import fighting_mongooses.walkhealthy.objects.Group;
 import fighting_mongooses.walkhealthy.objects.User;
-import fighting_mongooses.walkhealthy.ui.SettingsActivity;
 
 /**
  * Helper class for database requests
@@ -44,12 +42,24 @@ public final class DatabaseTools {
 
     public static final String USERS_PATH = "users";
     public static final String GROUPS_PATH = "groups";
-    public static final String ALLUSERS_GROUP = "allusers";
+    public static final String EVENTS_PATH = "events";
+    public static final String ALL_USERS_GROUP = "allusers";
+    public static final String USER_PROFILE_PIC = "profilePics";
 
     /**
      * Reference to the firebase authentication.
      */
     private static final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+    /**
+     * Reference to the firebase storage.
+     */
+    private static final FirebaseStorage mStorage = FirebaseStorage.getInstance();
+
+    /**
+     * Specific reference to the profilePic folder in the firebase storage.
+     */
+    private static final StorageReference storageUserPicFolderRef = mStorage.getReference().child(USER_PROFILE_PIC);
 
     /**
      * Reference to the firebase database.
@@ -59,12 +69,21 @@ public final class DatabaseTools {
     /**
      * Specific reference to the USERS key in the firebase database.
      */
-    private static final DatabaseReference usersRef = mDatabase.getReference().child(USERS_PATH);
+    private static final DatabaseReference dbUsersRef = mDatabase.getReference().child(USERS_PATH);
 
     /**
      * Specific reference to the GROUPS key in the firebase database.
      */
-    private static final DatabaseReference groupsRef = mDatabase.getReference().child(GROUPS_PATH);
+    private static final DatabaseReference dbGroupsRef = mDatabase.getReference().child(GROUPS_PATH);
+
+    /**
+     * Specific reference to the EVENTS key in the firebase database.
+     */
+    private static final DatabaseReference dbEventsRef = mDatabase.getReference().child(EVENTS_PATH);
+
+    //////////////////////////////////////////////
+    // GETTERS  //////////////////////////////////
+    //////////////////////////////////////////////
 
     /**
      * Returns the firebase authentication object.
@@ -74,12 +93,35 @@ public final class DatabaseTools {
     public static FirebaseAuth getFirebaseAuth() { return mAuth; }
 
     /**
+     * Returns the currents user UID
+     *
+     * @return    The current user UID
+     */
+    public static String getCurrentUsersUid() { return mAuth.getCurrentUser().getUid(); }
+
+    /**
+     * Returns the currents user Email
+     *
+     * @return    The current user email
+     */
+    public static String getCurrentUsersEmail() { return mAuth.getCurrentUser().getEmail(); }
+
+    /**
+     * Returns the users profile pics storage reference.
+     *
+     * @return    The users pics reference.
+     */
+    public static StorageReference getStorageUserPicFolderRef() {
+        return storageUserPicFolderRef;
+    }
+
+    /**
      * Returns the users database reference.
      *
      * @return    The users reference.
      */
-    public static DatabaseReference getUsersReference() {
-        return usersRef;
+    public static DatabaseReference getDbUsersReference() {
+        return dbUsersRef;
     }
 
     /**
@@ -87,9 +129,18 @@ public final class DatabaseTools {
      *
      * @return    The groups reference.
      */
-    public static DatabaseReference getGroupsReference() {
-        return groupsRef;
-    }
+    public static DatabaseReference getDbGroupsReference() { return dbGroupsRef; }
+
+    /**
+     * Returns the events database reference.
+     *
+     * @return    The events reference.
+     */
+    public static DatabaseReference getDbEventsReference() { return dbEventsRef; }
+
+    //////////////////////////////////////////////
+    // USER METHODS///////////////////////////////
+    //////////////////////////////////////////////
 
     /**
      * Updates an users profile
@@ -97,19 +148,36 @@ public final class DatabaseTools {
      * @param user   User object that should be modified
      * @return       true if user is updated false otherwise
      */
-    public static boolean updateCurrentUser(final User user) {
-        final FirebaseUser fbUser = mAuth.getCurrentUser();
-
-        // UPDATE USERNAME IN FIREBASE AUTHENTICATION
+    public static void updateCurrentUser(final User user) {
         // TODO check for unique username - return false if duplicate
-        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                .setDisplayName(user.getUsername()).build();
-        // ASYNC -> this might take a few seconds
-        fbUser.updateProfile(profileUpdates);
+        dbUsersRef.child(getCurrentUsersUid()).setValue(user);
+    }
 
-        // UPDATE ALL OTHER FIELDS IN THE DATABASE USER OBJECT
-        usersRef.child(fbUser.getUid()).setValue(user);
-        return true;
+    /**
+     * Updates the current users profile picture.
+     */
+    public static UploadTask setProfilePicture(Uri uri) {
+        final StorageReference ref = storageUserPicFolderRef.child(getCurrentUsersUid());
+        final UploadTask uploadTask = ref.putFile(uri);
+
+        return uploadTask;
+    }
+
+    /**
+     * Gets a users profile picture based on id.
+     *
+     * @param uid    The user id
+     * @param file   The file where to profile pic should be stored
+     */
+    public static FileDownloadTask getProfilePicture(String uid, File file) {
+        final StorageReference ref = storageUserPicFolderRef.child(uid);
+        final FileDownloadTask downloadTask = ref.getFile(file);
+
+        return downloadTask;
+    }
+
+    public static void logOffUser() {
+        mAuth.signOut();
     }
 
     /**
@@ -119,11 +187,11 @@ public final class DatabaseTools {
     public static void deleteUser() {
         final FirebaseUser fbUser = mAuth.getCurrentUser();
         // REMOVE USER FROM ALL GROUPS
-        groupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        dbGroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    removeUserFromGroup(fbUser.getUid(), snapshot.getRef().getKey());
+                    removeUserFromGroup(getCurrentUsersUid(), snapshot.getRef().getKey());
                 }
             }
             @Override
@@ -132,11 +200,15 @@ public final class DatabaseTools {
         });
 
         // DELETE USER FROM DATABASE
-        usersRef.child(fbUser.getUid()).removeValue();
+        dbUsersRef.child(getCurrentUsersUid()).removeValue();
         // DELETE USER FROM AUTHENTICATION
         mAuth.signOut();
         fbUser.delete();
     }
+
+    //////////////////////////////////////////////
+    // GROUP METHODS//////////////////////////////
+    //////////////////////////////////////////////
 
     /**
      * Adds the new group to the group reference.
@@ -154,7 +226,7 @@ public final class DatabaseTools {
         // TODO check if group exists
 
         // CREATE GROUP
-        groupsRef.child(group.getName()).setValue(group);
+        dbGroupsRef.child(group.getName()).setValue(group);
 
         // ADD EVERY USER TO THE GROUP
         for (Map.Entry e : group.getMembers().entrySet()) {
@@ -164,14 +236,14 @@ public final class DatabaseTools {
     }
 
     /**
-     * Updates an exisitng group in the group reference.
+     * Updates an existing group in the group reference.
      *
      * @param group The group that should be added.
      * @return      True if group added false otherwise.
      */
     public static void updateGroup(final Group group) {
         // TODO make sure group exists
-        groupsRef.child(group.getName()).setValue(group);
+        dbGroupsRef.child(group.getName()).setValue(group);
     }
 
     /**
@@ -181,7 +253,7 @@ public final class DatabaseTools {
      * @param groupName The group name where we want the change.
      */
     public static void changeGroupAdmin(final String userId, final String groupName) {
-        groupsRef.child(groupName).child("admin").setValue(userId);
+        dbGroupsRef.child(groupName).child("admin").setValue(userId);
     }
 
     /**
@@ -192,8 +264,8 @@ public final class DatabaseTools {
      * @param groupName The group name where we want the change.
      */
     public static void addUserToGroup(final String userId, final String groupName) {
-        usersRef.child(userId).child("groups").child(groupName).setValue("true");
-        groupsRef.child(groupName).child("members").child(userId).setValue("true");
+        dbUsersRef.child(userId).child("groups").child(groupName).setValue("true");
+        dbGroupsRef.child(groupName).child("members").child(userId).setValue("true");
     }
 
     /**
@@ -205,8 +277,28 @@ public final class DatabaseTools {
      */
     public static void removeUserFromGroup(final String userId, final String groupName) {
         // TODO if user is admin choose random new admin
-        usersRef.child(userId).child("groups").child(groupName).removeValue();
-        groupsRef.child(groupName).child("members").child(userId).removeValue();
+        dbUsersRef.child(userId).child("groups").child(groupName).removeValue();
+        dbGroupsRef.child(groupName).child("members").child(userId).removeValue();
+    }
+
+    /**
+     * Adds an existing user to an existing group.
+     *
+     * @param eventId    The event that should be added.
+     * @param groupName  The group name where we want the change.
+     */
+    public static void addEventToGroup(final String eventId, final String groupName) {
+        dbGroupsRef.child(groupName).child("events").child(eventId).setValue("true");
+    }
+
+    /**
+     * Removes an existing event from an existing group.
+     *
+     * @param eventId    The event that should be added.
+     * @param groupName  The group name where we want the change.
+     */
+    public static void removeEventFromGroup(final String eventId, final String groupName) {
+        dbGroupsRef.child(groupName).child("events").child(eventId).removeValue();
     }
 
     /**
@@ -218,13 +310,13 @@ public final class DatabaseTools {
      * @return          True if group removed false otherwise.
      */
     public static boolean removeGroup(final String groupName) {
-        if (groupName.equals(ALLUSERS_GROUP)) {
+        if (groupName.equals(ALL_USERS_GROUP)) {
             return false;
         }
 
         // TODO only group owner should be able to remove
 
-        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        dbUsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -236,9 +328,41 @@ public final class DatabaseTools {
             }
         });
 
-        groupsRef.child(groupName).removeValue();
+        dbGroupsRef.child(groupName).removeValue();
         return true;
     }
+
+    //////////////////////////////////////////////
+    // EVENT METHODS /////////////////////////////
+    //////////////////////////////////////////////
+
+    /**
+     * Adds the new event to the event reference.
+     *
+     */
+    public static void createEvent(final String groupName) {
+        // CREATE REFERENCE
+        DatabaseReference ref = dbEventsRef.push();
+        // ADD EVENT TO REFERENCE
+        ref.setValue(new Event(System.currentTimeMillis()));
+        // ADD THE EVENT KEY TO THE GROUP
+        addEventToGroup(ref.getKey(), groupName);
+    }
+
+    /**
+     * Removes a event from the events reference.
+     * Removes the event from the group node.
+     *
+     * @param eventId The event that should be removed.
+     */
+    public static void removeEvent(final String eventId, final String groupName) {
+        dbEventsRef.child(eventId).removeValue();
+        removeEventFromGroup(eventId, groupName);
+    }
+
+    //////////////////////////////////////////////
+    // MISC //////////////////////////////////////
+    //////////////////////////////////////////////
 
     /**
      * Returns the requested user as an user object.
@@ -248,7 +372,7 @@ public final class DatabaseTools {
      */
     public static void readUserData(String userId, final OnGetUserListener listener) {
         listener.onStart();
-        usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        dbUsersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final User user = dataSnapshot.getValue(User.class);
@@ -270,7 +394,7 @@ public final class DatabaseTools {
      */
     public static void readGroupData(String groupName, final OnGetGroupListener listener) {
         listener.onStart();
-        groupsRef.child(groupName).addListenerForSingleValueEvent(new ValueEventListener() {
+        dbGroupsRef.child(groupName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final Group group = dataSnapshot.getValue(Group.class);
@@ -282,9 +406,5 @@ public final class DatabaseTools {
                 listener.onFailed(databaseError);
             }
         });
-    }
-
-    public static void logOffUser() {
-        mAuth.signOut();
     }
 }

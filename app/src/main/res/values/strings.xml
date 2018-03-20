@@ -34,7 +34,7 @@
     <string name="headGrpDeleteGrp">Delete Group</string>
     <string name="headMainUserGroups">YOUR GROUPS</string>
     <string name="headMainAllGroups">ALL GROUPS</string>
-    <string name="headMainRecent">RECENT ACTIVITIES</string>
+    <string name="headGroupEvents">EVENTS</string>
     <string name="headGrpMember">GROUP MEMBERS</string>
     <string name="headGrpName">GROUP NAME</string>
     <string name="headGrpInvite">ALL USERS</string>
