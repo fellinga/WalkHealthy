@@ -3,28 +3,31 @@ package fighting_mongooses.walkhealthy.ui;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.provider.ContactsContract;
+import android.os.UserHandle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import fighting_mongooses.walkhealthy.R;
-import fighting_mongooses.walkhealthy.listener.OnGetGroupListener;
-import fighting_mongooses.walkhealthy.listener.OnGetUserListener;
+import fighting_mongooses.walkhealthy.objects.Event;
 import fighting_mongooses.walkhealthy.objects.Group;
 import fighting_mongooses.walkhealthy.objects.User;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
@@ -41,62 +44,63 @@ public class GroupActivity extends AppCompatActivity {
     public static final String KEY_EXTRA = "walkhealthy.KEY_GROUP";
 
     private Group group;
-    private Toolbar groupToolbar;
+    private String groupName;
+    private Toolbar toolbar;
     private TableLayout membersLayout, eventsLayout;
     private FloatingActionButton myFab;
-    private List<User> groupMembers = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group);
 
-        groupToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(groupToolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         // add back arrow to toolbar
-        if (getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        myFab = (FloatingActionButton) findViewById(R.id.addGrpAcc);
+        if (!getIntent().hasExtra(KEY_EXTRA)) {
+            this.finish();
+        }
+
+        groupName = getIntent().getStringExtra(KEY_EXTRA);
+
+        myFab = (FloatingActionButton) findViewById(R.id.addEvent);
         membersLayout = (TableLayout) findViewById(R.id.membersLayout);
         eventsLayout = (TableLayout) findViewById(R.id.eventsLayout);
 
-        if (getIntent().hasExtra(KEY_EXTRA)) {
-            readGroupData();
-        } else {
-            this.finish();
-        }
+        fetchGroupData();
     }
 
     /**
      * Reads the group object from the database
      * and fetches all group membe
      */
-    private void readGroupData() {
-        DatabaseTools.readGroupData(getIntent().getStringExtra(KEY_EXTRA), new OnGetGroupListener() {
-            @Override
-            public void onStart() {
-                // TODO BLOCK GUI WHILE GRP OBJECT IS LOADING
-            }
+    private void fetchGroupData() {
+        DatabaseTools.getDbGroupsReference().child(groupName).
+            addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    final Group fbGroup = dataSnapshot.getValue(Group.class);
+                    if (fbGroup != null) {
+                        GroupActivity.this.group = fbGroup;
+                        toolbar.setTitle(group.getName().toUpperCase());
+                        toolbar.setSubtitle("Walk Healthy Event");
+                        checkAdmin();
+                        addMembers();
+                        addEvents();
+                    }
+                }
 
-            @Override
-            public void onSuccess(Group group) {
-                GroupActivity.this.group = group;
-                groupToolbar.setTitle(group.getName().toUpperCase());
-                groupToolbar.setSubtitle("Walk Healthy Group");
-                checkAdmin();
-                fetchMembers();
-                fetchEvents();
-            }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            @Override
-            public void onFailed(DatabaseError databaseError) {
-
-            }
-        });
+                }
+            });
     }
 
     /**
@@ -117,30 +121,28 @@ public class GroupActivity extends AppCompatActivity {
      * Gets all group members and adds them
      * to the members lists.
      */
-    private void fetchMembers() {
+    private void addMembers() {
         membersLayout.removeViews(0, membersLayout.getChildCount());
-        for (Map.Entry<String, String> entry : group.getMembers().entrySet()) {
-            DatabaseTools.readUserData(entry.getKey(), new OnGetUserListener() {
-                @Override
-                public void onStart() {
-                    // TODO BLOCK GUI WHILE GRP OBJECT IS LOADING
-                }
+        for (Map.Entry<String, Boolean> entry : group.getMembers().entrySet()) {
+            DatabaseTools.getDbUsersReference().child(entry.getKey())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final User user = dataSnapshot.getValue(User.class);
+                        if (user != null) {
+                            TableRow tr = new TableRow(GroupActivity.this);
+                            TextView tv = new TextView(GroupActivity.this);
+                            tv.setText("- " + user.getUsername());
+                            tr.addView(tv);
+                            membersLayout.addView(tr);
+                        }
+                    }
 
-                @Override
-                public void onSuccess(User user) {
-                    GroupActivity.this.groupMembers.add(user);
-                    TableRow tr = new TableRow(GroupActivity.this);
-                    TextView tv = new TextView(GroupActivity.this);
-                    tv.setText("- " + user.getUsername());
-                    tr.addView(tv);
-                    membersLayout.addView(tr);
-                }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                @Override
-                public void onFailed(DatabaseError databaseError) {
-
-                }
-            });
+                    }
+                });
         }
     }
 
@@ -148,23 +150,49 @@ public class GroupActivity extends AppCompatActivity {
      * Gets all group events and adds them
      * to the events lists.
      */
-    private void fetchEvents() {
+    private void addEvents() {
         eventsLayout.removeViews(0, eventsLayout.getChildCount());
-        for (final Map.Entry<String, String> entry : group.getEvents().entrySet()) {
-            TableRow tr = new TableRow(GroupActivity.this);
-            TextView tv = new TextView(GroupActivity.this);
-            tv.setText("Event: " + entry.getKey());
-            if (isCurrentUserAdmin()) {
-                tv.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View view) {
-                        DatabaseTools.removeEvent(entry.getKey(), group.getName());
-                        readGroupData();
+        for (final Map.Entry<String, Boolean> entry : group.getEvents().entrySet()) {
+            DatabaseTools.getDbEventsReference().child(entry.getKey())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    final Event event = dataSnapshot.getValue(Event.class);
+                    if (event != null) {
+                        TableRow tr = new TableRow(GroupActivity.this);
+                        TextView tv = new TextView(GroupActivity.this);
+                        tv.setText(event.getName());
+                        tv.setTag(entry.getKey());
+                        tv.setOnClickListener(new View.OnClickListener() {
+                            public void onClick(View view) {
+                                final String eventId = view.getTag().toString();
+                                openEventActivity(eventId);
+                            }
+                        });
+                        tr.addView(tv);
+                        eventsLayout.addView(tr);
                     }
-                });
-            }
-            tr.addView(tv);
-            eventsLayout.addView(tr);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
         }
+    }
+
+    /**
+     * Open the specified event activity and sends the
+     * event id with it.
+     *
+     * @param eventId Id of the event
+     */
+    private void openEventActivity(String eventId) {
+        // SEND THE GROUP NAME TO THE GROUP ACTIVITY
+        Intent intent = new Intent(GroupActivity.this, EventActivity.class);
+        intent.putExtra(EventActivity.KEY_EXTRA, eventId);
+        startActivity(intent);
     }
 
     /**
@@ -176,8 +204,7 @@ public class GroupActivity extends AppCompatActivity {
         inputAlert.setPositiveButton("Create", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                DatabaseTools.createEvent(group.getName());
-                readGroupData();
+                DatabaseTools.createEvent(group.getName(), System.currentTimeMillis());
                 Toast.makeText(GroupActivity.this, "Event created.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -205,7 +232,6 @@ public class GroupActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         if (DatabaseTools.removeGroup(group.getName())) {
                             Toast.makeText(GroupActivity.this, "Group deleted.", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(GroupActivity.this, MainActivity.class));
                             finish();
                         } else {
                             Toast.makeText(GroupActivity.this, "Could not delete group.", Toast.LENGTH_SHORT).show();
@@ -219,12 +245,6 @@ public class GroupActivity extends AppCompatActivity {
      */
     private boolean isCurrentUserAdmin() {
         return DatabaseTools.getCurrentUsersUid().equals(group.getAdmin());
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        readGroupData();
     }
 
     // Menu icons are inflated just as they were with actionbar
@@ -241,7 +261,7 @@ public class GroupActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
-                return super.onOptionsItemSelected(item);
+                return true;
 
             case R.id.action_leavegrp:
                 if (isCurrentUserAdmin()) {

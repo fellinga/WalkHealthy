@@ -142,7 +142,7 @@ public class RegisterActivity extends Activity {
                             // Sign in success - Firebase User created.
                             DatabaseTools.updateCurrentUser(new User(username, birthday));
                             DatabaseTools.addUserToGroup(DatabaseTools.getCurrentUsersUid(), DatabaseTools.ALL_USERS_GROUP);
-
+                            DatabaseTools.getFirebaseAuth().getCurrentUser().sendEmailVerification();
                             openNewUserActivity();
                         } else {
                             // If sign in fails, display a message to the user.

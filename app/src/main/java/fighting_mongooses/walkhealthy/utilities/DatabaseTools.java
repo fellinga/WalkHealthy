@@ -1,10 +1,8 @@
 package fighting_mongooses.walkhealthy.utilities;
 
+import android.content.Context;
 import android.net.Uri;
 
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -20,8 +18,6 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.util.Map;
 
-import fighting_mongooses.walkhealthy.listener.OnGetGroupListener;
-import fighting_mongooses.walkhealthy.listener.OnGetUserListener;
 import fighting_mongooses.walkhealthy.objects.Event;
 import fighting_mongooses.walkhealthy.objects.Group;
 import fighting_mongooses.walkhealthy.objects.User;
@@ -80,7 +76,7 @@ public final class DatabaseTools {
      * Specific reference to the EVENTS key in the firebase database.
      */
     private static final DatabaseReference dbEventsRef = mDatabase.getReference().child(EVENTS_PATH);
-
+    
     //////////////////////////////////////////////
     // GETTERS  //////////////////////////////////
     //////////////////////////////////////////////
@@ -105,15 +101,6 @@ public final class DatabaseTools {
      * @return    The current user email
      */
     public static String getCurrentUsersEmail() { return mAuth.getCurrentUser().getEmail(); }
-
-    /**
-     * Returns the users profile pics storage reference.
-     *
-     * @return    The users pics reference.
-     */
-    public static StorageReference getStorageUserPicFolderRef() {
-        return storageUserPicFolderRef;
-    }
 
     /**
      * Returns the users database reference.
@@ -186,24 +173,31 @@ public final class DatabaseTools {
      */
     public static void deleteUser() {
         final FirebaseUser fbUser = mAuth.getCurrentUser();
+        final String userId = fbUser.getUid();
+
         // REMOVE USER FROM ALL GROUPS
-        dbGroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        dbUsersRef.child(userId).child(GROUPS_PATH).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    removeUserFromGroup(getCurrentUsersUid(), snapshot.getRef().getKey());
+                for (final DataSnapshot child : dataSnapshot.getChildren()) {
+                    removeUserFromGroup(userId, child.getKey());
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 
         // DELETE USER FROM DATABASE
-        dbUsersRef.child(getCurrentUsersUid()).removeValue();
+        dbUsersRef.child(userId).removeValue();
         // DELETE USER FROM AUTHENTICATION
-        mAuth.signOut();
         fbUser.delete();
+    }
+
+    public void reAuthenticate(String password, Context context) {
+
     }
 
     //////////////////////////////////////////////
@@ -236,17 +230,6 @@ public final class DatabaseTools {
     }
 
     /**
-     * Updates an existing group in the group reference.
-     *
-     * @param group The group that should be added.
-     * @return      True if group added false otherwise.
-     */
-    public static void updateGroup(final Group group) {
-        // TODO make sure group exists
-        dbGroupsRef.child(group.getName()).setValue(group);
-    }
-
-    /**
      * Changes an existing groups administrator.
      *
      * @param userId    The groups new administrator.
@@ -264,8 +247,8 @@ public final class DatabaseTools {
      * @param groupName The group name where we want the change.
      */
     public static void addUserToGroup(final String userId, final String groupName) {
-        dbUsersRef.child(userId).child("groups").child(groupName).setValue("true");
-        dbGroupsRef.child(groupName).child("members").child(userId).setValue("true");
+        dbUsersRef.child(userId).child(GROUPS_PATH).child(groupName).setValue(true);
+        dbGroupsRef.child(groupName).child("members").child(userId).setValue(true);
     }
 
     /**
@@ -277,28 +260,8 @@ public final class DatabaseTools {
      */
     public static void removeUserFromGroup(final String userId, final String groupName) {
         // TODO if user is admin choose random new admin
-        dbUsersRef.child(userId).child("groups").child(groupName).removeValue();
+        dbUsersRef.child(userId).child(GROUPS_PATH).child(groupName).removeValue();
         dbGroupsRef.child(groupName).child("members").child(userId).removeValue();
-    }
-
-    /**
-     * Adds an existing user to an existing group.
-     *
-     * @param eventId    The event that should be added.
-     * @param groupName  The group name where we want the change.
-     */
-    public static void addEventToGroup(final String eventId, final String groupName) {
-        dbGroupsRef.child(groupName).child("events").child(eventId).setValue("true");
-    }
-
-    /**
-     * Removes an existing event from an existing group.
-     *
-     * @param eventId    The event that should be added.
-     * @param groupName  The group name where we want the change.
-     */
-    public static void removeEventFromGroup(final String eventId, final String groupName) {
-        dbGroupsRef.child(groupName).child("events").child(eventId).removeValue();
     }
 
     /**
@@ -314,21 +277,19 @@ public final class DatabaseTools {
             return false;
         }
 
-        // TODO only group owner should be able to remove
-
         dbUsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    snapshot.getRef().child("groups").child(groupName).removeValue();
+                    snapshot.getRef().child(GROUPS_PATH).child(groupName).removeValue();
                 }
+                dbGroupsRef.child(groupName).removeValue();
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
         });
 
-        dbGroupsRef.child(groupName).removeValue();
         return true;
     }
 
@@ -340,13 +301,33 @@ public final class DatabaseTools {
      * Adds the new event to the event reference.
      *
      */
-    public static void createEvent(final String groupName) {
+    public static void createEvent(final String groupName, final long startTime) {
         // CREATE REFERENCE
         DatabaseReference ref = dbEventsRef.push();
         // ADD EVENT TO REFERENCE
-        ref.setValue(new Event(System.currentTimeMillis()));
+        Event event = new Event(groupName, "Event", startTime);
+        ref.setValue(event);
+
         // ADD THE EVENT KEY TO THE GROUP
-        addEventToGroup(ref.getKey(), groupName);
+        dbGroupsRef.child(groupName).child(EVENTS_PATH).child(ref.getKey()).setValue(true);
+    }
+
+    /**
+     * Adds the current user to an event.
+     *
+     * @param eventId    The eventId where the user should be added.
+     */
+    public static void addUserToEvent(final String eventId, boolean going) {
+        dbEventsRef.child(eventId).child("attendees").child(getCurrentUsersUid()).setValue(going);
+    }
+
+    /**
+     * Removes the current user from an event.
+     *
+     * @param eventId    The eventId where the user should be removed.
+     */
+    public static void removeUserFromEvent(final String eventId) {
+        dbEventsRef.child(eventId).child("attendees").child(getCurrentUsersUid()).removeValue();
     }
 
     /**
@@ -357,54 +338,6 @@ public final class DatabaseTools {
      */
     public static void removeEvent(final String eventId, final String groupName) {
         dbEventsRef.child(eventId).removeValue();
-        removeEventFromGroup(eventId, groupName);
-    }
-
-    //////////////////////////////////////////////
-    // MISC //////////////////////////////////////
-    //////////////////////////////////////////////
-
-    /**
-     * Returns the requested user as an user object.
-     *
-     * @param userId   The userId of the requested user.
-     * @param listener Listener to perform the async request
-     */
-    public static void readUserData(String userId, final OnGetUserListener listener) {
-        listener.onStart();
-        dbUsersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                final User user = dataSnapshot.getValue(User.class);
-                listener.onSuccess(user);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                listener.onFailed(databaseError);
-            }
-        });
-    }
-
-    /**
-     * Returns the requested group as a group object.
-     *
-     * @param groupName The groupName of the requested group.
-     * @param listener  Listener to perform the async request
-     */
-    public static void readGroupData(String groupName, final OnGetGroupListener listener) {
-        listener.onStart();
-        dbGroupsRef.child(groupName).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                final Group group = dataSnapshot.getValue(Group.class);
-                listener.onSuccess(group);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                listener.onFailed(databaseError);
-            }
-        });
+        dbGroupsRef.child(groupName).child(EVENTS_PATH).child(eventId).removeValue();
     }
 }

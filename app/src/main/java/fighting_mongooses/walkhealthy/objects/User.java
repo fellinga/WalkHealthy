@@ -25,7 +25,7 @@ public class User {
     /**
      * Contains all groups that the user has joined.
      */
-    private Map<String,String> groups = new HashMap<>();
+    private Map<String,Boolean> groups = new HashMap<>();
 
     /**
      * Empty Class constructor. (Needed for Firebase)
@@ -46,7 +46,7 @@ public class User {
      * Method to add a group to the user.
      */
     public void addGroup(String grpName) {
-        groups.put(grpName, "true");
+        groups.put(grpName, true);
     }
 
     /**
@@ -54,7 +54,7 @@ public class User {
      *
      * @return      the group map.
      */
-    public Map<String, String> getGroups() {
+    public Map<String, Boolean> getGroups() {
         return new HashMap<>(groups);
     }
 

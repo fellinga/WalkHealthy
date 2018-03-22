@@ -25,18 +25,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
-import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
-import java.io.IOException;
 
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.objects.User;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
-import fighting_mongooses.walkhealthy.listener.OnGetUserListener;
 import fighting_mongooses.walkhealthy.utilities.VerificationTools;
 
 /**
@@ -110,22 +109,20 @@ public class SettingsActivity extends AppCompatActivity {
      * database and displays it.
      */
     private void updateInfo() {
-        DatabaseTools.readUserData(DatabaseTools.getCurrentUsersUid(), new OnGetUserListener() {
+        DatabaseTools.getDbUsersReference().child(DatabaseTools.getCurrentUsersUid()).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onStart() {
-                // TODO BLOCK GUI WHILE USER OBJECT IS LOADING
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final User user = dataSnapshot.getValue(User.class);
+                if (user != null) {
+                    SettingsActivity.this.user = user;
+                    birthdayView.setText(user.getBirthday());
+                    usernameView.setText(user.getUsername());
+                    emailView.setText(DatabaseTools.getCurrentUsersEmail());
+                }
             }
 
             @Override
-            public void onSuccess(User user) {
-                SettingsActivity.this.user = user;
-                birthdayView.setText(user.getBirthday());
-                usernameView.setText(user.getUsername());
-                emailView.setText(DatabaseTools.getCurrentUsersEmail());
-            }
-
-            @Override
-            public void onFailed(DatabaseError databaseError) {
+            public void onCancelled(DatabaseError databaseError) {
 
             }
         });
@@ -199,7 +196,7 @@ public class SettingsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            finish(); // close this activity and return to preview activity (if there is any)
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

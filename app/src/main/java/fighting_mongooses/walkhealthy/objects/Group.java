@@ -23,14 +23,19 @@ public class Group {
     private String admin;
 
     /**
+     * The event intensity.
+     */
+    private int intensity;
+
+    /**
      * Map contains all members of this group.
      */
-    private Map<String,String> members = new HashMap<>();
+    private Map<String,Boolean> members = new HashMap<>();
 
     /**
      * Map contains all events of this group.
      */
-    private Map<String,String> events = new HashMap<>();
+    private Map<String,Boolean> events = new HashMap<>();
 
     /**
      * Empty Class constructor. (Needed for Firebase)
@@ -42,8 +47,8 @@ public class Group {
     /**
      * Class constructor.
      */
-    public Group(String name, String admin) {
-        this.name = name;
+    public Group(String admin) {
+        this.name = "Group";
         this.admin = admin;
         addMember(admin);
     }
@@ -58,6 +63,15 @@ public class Group {
     }
 
     /**
+     * Setter for groups name
+     *
+     * @param name Name for group
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
      * Getter for groups administrator.
      *
      * @return      The groups administrator
@@ -67,10 +81,27 @@ public class Group {
     }
 
     /**
-     * Method to add members to the group.
+     * Getter for groups intensity.
+     *
+     * @return      The groups intensity
+     */
+    public int getIntensity() {
+        return intensity;
+    }
+
+    /**
+     * Method to add one or more members
+     * to the group.
      */
     public void addMember(String userId) {
-        members.put(userId, "true");
+        members.put(userId, true);
+    }
+
+    /**
+     * Method to add members to the group.
+     */
+    public void removeMember(String userId) {
+        members.remove(userId);
     }
 
     /**
@@ -78,7 +109,7 @@ public class Group {
      *
      * @return      the members map.
      */
-    public Map<String, String> getMembers() {
+    public Map<String, Boolean> getMembers() {
         return new HashMap<>(members);
     }
 
@@ -86,7 +117,7 @@ public class Group {
      * Method to add event to the group.
      */
     public void addEvent(String eventId) {
-        events.put(eventId, "true");
+        events.put(eventId, true);
     }
 
     /**
@@ -94,7 +125,7 @@ public class Group {
      *
      * @return      the events map.
      */
-    public Map<String, String> getEvents() {
+    public Map<String, Boolean> getEvents() {
         return new HashMap<>(events);
     }
 }

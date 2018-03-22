@@ -19,6 +19,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.objects.Group;
@@ -36,9 +37,10 @@ public class GroupEditActivity extends AppCompatActivity {
 
     public static final String KEY_EXTRA = "walkhealthy.KEY_GROUPEDIT";
 
+    private Group group;
     private EditText inputGroupname;
     private TableLayout alluserlayout, addeduserlayout;
-    private List<String> invitedUsers = new ArrayList<>();
+    private List<String> addedUsers = new ArrayList<>();
     private List<String> removedUsers = new ArrayList<>();
 
     @Override
@@ -63,47 +65,13 @@ public class GroupEditActivity extends AppCompatActivity {
 
         if (getIntent().hasExtra(KEY_EXTRA)) {
             getSupportActionBar().setTitle("Edit group");
-            loadGrpData(getIntent().getStringExtra(KEY_EXTRA));
+            fetchGroupData(getIntent().getStringExtra(KEY_EXTRA));
         } else {
             getSupportActionBar().setTitle("New group");
+            group = new Group(DatabaseTools.getCurrentUsersUid());
         }
 
         fetchAllUsers();
-    }
-
-    /**
-     * Loads all users from the database
-     */
-    private void fetchAllUsers() {
-        DatabaseTools.getDbUsersReference().addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                alluserlayout.removeViewsInLayout(0, alluserlayout.getChildCount());
-                for (final DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    final User user = snapshot.getValue(User.class);
-                    if (snapshot.getKey().equals(DatabaseTools.getCurrentUsersUid())) {
-                        addUserToInvitedUsers(DatabaseTools.getCurrentUsersUid(), user.getUsername());
-                    }
-                    TableRow tr = new TableRow(GroupEditActivity.this);
-                    TextView tv = new TextView(GroupEditActivity.this);
-                    tv.setText(user.getUsername());
-                    tr.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addUserToInvitedUsers(snapshot.getKey(), user.getUsername());
-                        }
-
-                    });
-                    tr.addView(tv);
-                    alluserlayout.addView(tr);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     /**
@@ -111,28 +79,53 @@ public class GroupEditActivity extends AppCompatActivity {
      * group gets edited (name change not
      * supported right now)
      */
-    private void loadGrpData(final String groupName) {
-        inputGroupname.setText(groupName);
+    private void fetchGroupData(final String groupName) {
         inputGroupname.setBackgroundColor(Color.GRAY);
         inputGroupname.setFocusable(false);
 
-        // LOAD GROUP MEMBER
-        DatabaseTools.getDbUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (final DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    if (snapshot.child("groups").hasChild(groupName)) {
-                        final User user = snapshot.getValue(User.class);
-                        addUserToInvitedUsers(snapshot.getKey(), user.getUsername());
+        // LOAD GROUP OBJECT
+        DatabaseTools.getDbGroupsReference().child(groupName).
+                addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final Group fbGroup = dataSnapshot.getValue(Group.class);
+                        if (fbGroup == null) {
+                            finish();
+                        }
+                        GroupEditActivity.this.group = fbGroup;
+                        inputGroupname.setText(group.getName());
+                        addMembers();
                     }
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                    }
+                });
+    }
+
+    /**
+     * Gets all group members and adds them
+     * to the members lists.
+     */
+    private void addMembers() {
+        for (final Map.Entry<String, Boolean> entry : group.getMembers().entrySet()) {
+            DatabaseTools.getDbUsersReference().child(entry.getKey())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            final User user = dataSnapshot.getValue(User.class);
+                            if (user != null) {
+                                addUserToInvitedUsers(entry.getKey(), user.getUsername());
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+        }
     }
 
     /**
@@ -142,8 +135,9 @@ public class GroupEditActivity extends AppCompatActivity {
      * @param username Users username
      */
     private void addUserToInvitedUsers(final String uid, final String username) {
-        if (!invitedUsers.contains(uid)) {
-            invitedUsers.add(uid);
+        if (!addedUsers.contains(uid)) {
+            group.addMember(uid);
+            addedUsers.add(uid);
             TableRow tr = new TableRow(GroupEditActivity.this);
             TextView tv = new TextView(GroupEditActivity.this);
             tv.setText(username);
@@ -172,7 +166,8 @@ public class GroupEditActivity extends AppCompatActivity {
                 TableRow tr = (TableRow) addeduserlayout.getChildAt(i);
                 TextView tv = (TextView) tr.getChildAt(0);
                 if (tv.getText().toString().equals(username)) {
-                    invitedUsers.remove(uid);
+                    group.removeMember(uid);
+                    addedUsers.remove(uid);
                     addeduserlayout.removeViewAt(i);
                     return true;
                 }
@@ -182,24 +177,51 @@ public class GroupEditActivity extends AppCompatActivity {
     }
 
     /**
+     * Loads all users from the database
+     */
+    private void fetchAllUsers() {
+        DatabaseTools.getDbUsersReference().addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                alluserlayout.removeViewsInLayout(0, alluserlayout.getChildCount());
+                for (final DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    final User user = snapshot.getValue(User.class);
+                    TableRow tr = new TableRow(GroupEditActivity.this);
+                    TextView tv = new TextView(GroupEditActivity.this);
+                    tv.setText(user.getUsername());
+                    tr.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            addUserToInvitedUsers(snapshot.getKey(), user.getUsername());
+                        }
+
+                    });
+                    tr.addView(tv);
+                    alluserlayout.addView(tr);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    /**
      * Takes the users input to create a new
      * group in the database.
      */
     private void createGroup() {
         String groupName = inputGroupname.getText().toString();
-        Group grp = new Group(groupName, DatabaseTools.getCurrentUsersUid());
+        group.setName(groupName);
 
         // remove all users from the database who got removed (only edit)
         for (String uid : removedUsers) {
             DatabaseTools.removeUserFromGroup(uid, groupName);
         }
 
-        // add all users to group
-        for (String uid : invitedUsers) {
-            grp.addMember(uid);
-        }
-
-        if (DatabaseTools.createGroup(grp)) {
+        if (DatabaseTools.createGroup(group)) {
             Toast.makeText(GroupEditActivity.this, "Success.", Toast.LENGTH_SHORT).show();
             finish();
         } else {
