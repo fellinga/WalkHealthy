@@ -319,6 +319,7 @@ public final class DatabaseTools {
      */
     public static void addUserToEvent(final String eventId, boolean going) {
         dbEventsRef.child(eventId).child("attendees").child(getCurrentUsersUid()).setValue(going);
+        dbUsersRef.child(getCurrentUsersUid()).child("events").child(eventId).setValue(going);
     }
 
     /**
@@ -328,6 +329,7 @@ public final class DatabaseTools {
      */
     public static void removeUserFromEvent(final String eventId) {
         dbEventsRef.child(eventId).child("attendees").child(getCurrentUsersUid()).removeValue();
+        dbUsersRef.child(getCurrentUsersUid()).child("events").child(eventId).removeValue();
     }
 
     /**

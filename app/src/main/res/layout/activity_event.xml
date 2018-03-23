@@ -17,51 +17,66 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_marginEnd="20dp"
         android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="70dp"
+            android:layout_marginEnd="20dp"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="20dp"
-                android:background="@color/white"
-                android:orientation="vertical"
-                android:padding="10dp">
+                android:layout_marginTop="70dp"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/headEventAttendees"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="ATTENDING"
-                    android:textSize="20sp" />
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/white"
+                    android:orientation="vertical"
+                    android:padding="10dp">
 
-                <TableLayout
-                    android:id="@+id/attendeesGoingLayout"
+                    <TextView
+                        android:id="@+id/headEventAttendees"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ATTENDING"
+                        android:textSize="20sp" />
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/attendingRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipChildren="false" />
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/white"
+                    android:orientation="vertical"
+                    android:padding="10dp">
 
-                </TableLayout>
+                    <TextView
+                        android:id="@+id/headEventNotAttendees"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="NOT ATTENDING"
+                        android:textSize="20sp" />
 
-                <TextView
-                    android:id="@+id/headEventNotAttendees"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="NOT ATTENDING"
-                    android:textSize="20sp" />
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/notAttendingRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipChildren="false" />
 
-                <TableLayout
-                    android:id="@+id/notGoingLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                </TableLayout>
+                </LinearLayout>
 
             </LinearLayout>
 

@@ -23,11 +23,6 @@ public class Group {
     private String admin;
 
     /**
-     * The event intensity.
-     */
-    private int intensity;
-
-    /**
      * Map contains all members of this group.
      */
     private Map<String,Boolean> members = new HashMap<>();
@@ -78,15 +73,6 @@ public class Group {
      */
     public String getAdmin() {
         return admin;
-    }
-
-    /**
-     * Getter for groups intensity.
-     *
-     * @return      The groups intensity
-     */
-    public int getIntensity() {
-        return intensity;
     }
 
     /**

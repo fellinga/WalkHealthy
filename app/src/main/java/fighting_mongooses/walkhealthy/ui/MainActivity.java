@@ -6,22 +6,32 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import fighting_mongooses.walkhealthy.R;
+import fighting_mongooses.walkhealthy.adapter.ViewHolder;
+import fighting_mongooses.walkhealthy.objects.Group;
+import fighting_mongooses.walkhealthy.objects.User;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 
 /**
@@ -32,8 +42,6 @@ import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
  * @author Mario Fellinger
  */
 public class MainActivity extends AppCompatActivity {
-
-    private TableLayout usergrplayout, allgrplayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +58,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        usergrplayout = (TableLayout) findViewById(R.id.usergrplayout);
-        allgrplayout = (TableLayout) findViewById(R.id.allgrplayout);
-
         fetchUsersGroups();
         fetchAllGroups();
     }
@@ -63,30 +68,42 @@ public class MainActivity extends AppCompatActivity {
      * for each entry.
      */
     private void fetchUsersGroups() {
-        DatabaseTools.getDbUsersReference().child(DatabaseTools.getCurrentUsersUid()).child("groups")
-                .addValueEventListener(new ValueEventListener() {
+        final RecyclerView userGroupsRecyclerView = (RecyclerView)findViewById(R.id.userGroupsRecyclerView);
+        Query query = DatabaseTools.getDbGroupsReference().
+                        orderByChild("members/" + DatabaseTools.getCurrentUsersUid()).equalTo(true);
+
+        final FirebaseRecyclerOptions<Group> options =
+                new FirebaseRecyclerOptions.Builder<Group>()
+                        .setQuery(query, Group.class)
+                        .build();
+
+        FirebaseRecyclerAdapter<Group, ViewHolder> userGroupAdapter = new FirebaseRecyclerAdapter<Group, ViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(ViewHolder holder, final int position, final Group model) {
+                holder.setTitle(model.getName());
+                holder.setDescription(model.getMembers().size() + " members.");
+                holder.linearLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        usergrplayout.removeViewsInLayout(0, usergrplayout.getChildCount());
-                        for (DataSnapshot child : dataSnapshot.getChildren()) {
-                            TableRow tr = new TableRow(MainActivity.this);
-                            TextView tv = new TextView(MainActivity.this);
-                            tv.setText("- " + child.getKey());
-                            tv.setTag(child.getKey());
-                            tv.setOnClickListener(new View.OnClickListener() {
-                                public void onClick(View view) {
-                                    final String groupName = view.getTag().toString();
-                                    openGroupActivity(groupName);
-                                }
-                            });
-                            tr.addView(tv);
-                            usergrplayout.addView(tr);
-                        }
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onClick(View v) {
+                        openGroupActivity(model.getName());
                     }
                 });
+                holder.setImageView(R.drawable.ic_group_black_24dp);
+            }
+
+            @Override
+            public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                // Create a new instance of the ViewHolder, in this case we are using a custom
+                // layout called R.layout.view_row for each item
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.view_row, parent, false);
+                return new ViewHolder(view);
+            }
+        };
+
+        userGroupsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        userGroupsRecyclerView.setAdapter(userGroupAdapter);
+        userGroupAdapter.startListening();
     }
 
     /**
@@ -95,28 +112,41 @@ public class MainActivity extends AppCompatActivity {
      * for each entry.
      */
     private void fetchAllGroups() {
-        DatabaseTools.getDbGroupsReference().addValueEventListener(new ValueEventListener() {
+        final RecyclerView allGroupsRecyclerView = (RecyclerView)findViewById(R.id.allGroupsRecyclerView);
+        Query query = DatabaseTools.getDbGroupsReference();
+
+        final FirebaseRecyclerOptions<Group> options =
+                new FirebaseRecyclerOptions.Builder<Group>()
+                        .setQuery(query, Group.class)
+                        .build();
+
+        FirebaseRecyclerAdapter<Group, ViewHolder> allGroupAdapter = new FirebaseRecyclerAdapter<Group, ViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(ViewHolder holder, final int position, final Group model) {
+                holder.setTitle(model.getName());
+                holder.setDescription(model.getMembers().size() + " members.");
+                holder.linearLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        allgrplayout.removeViewsInLayout(0, allgrplayout.getChildCount());
-                        for (final DataSnapshot child : dataSnapshot.getChildren()) {
-                            TableRow tr = new TableRow(MainActivity.this);
-                            TextView tv = new TextView(MainActivity.this);
-                            tv.setText("- " + child.getKey());
-                            tv.setTag(child.getKey());
-                            tv.setOnClickListener(new View.OnClickListener() {
-                                public void onClick(View view) {
-                                    joinGroup(child.getKey().toString());
-                                }
-                            });
-                            tr.addView(tv);
-                            allgrplayout.addView(tr);
-                        }
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onClick(View v) {
+                        joinGroup(getRef(position).getKey());
                     }
                 });
+                holder.setImageView(R.drawable.ic_group_black_24dp);
+            }
+
+            @Override
+            public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                // Create a new instance of the ViewHolder, in this case we are using a custom
+                // layout called R.layout.view_row for each item
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.view_row, parent, false);
+                return new ViewHolder(view);
+            }
+        };
+
+        allGroupsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        allGroupsRecyclerView.setAdapter(allGroupAdapter);
+        allGroupAdapter.startListening();
     }
 
     /**

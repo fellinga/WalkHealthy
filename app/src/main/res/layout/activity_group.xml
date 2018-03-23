@@ -36,18 +36,17 @@
                 android:padding="10dp">
 
                 <TextView
-                    android:id="@+id/headGrpMember"
+                    android:id="@+id/headGroupEvents"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/headGrpMember"
+                    android:text="@string/headGroupEvents"
                     android:textSize="20sp" />
 
-                <TableLayout
-                    android:id="@+id/membersLayout"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/eventRecyclerView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                </TableLayout>
+                    android:layout_height="match_parent"
+                    android:clipChildren="false" />
 
             </LinearLayout>
 
@@ -60,18 +59,17 @@
                 android:padding="10dp">
 
                 <TextView
-                    android:id="@+id/headGroupEvents"
+                    android:id="@+id/headGrpMember"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/headGroupEvents"
+                    android:text="@string/headGrpMember"
                     android:textSize="20sp" />
 
-                <TableLayout
-                    android:id="@+id/eventsLayout"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/memberRecyclerView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                </TableLayout>
+                    android:layout_height="match_parent"
+                    android:clipChildren="false" />
 
             </LinearLayout>
 

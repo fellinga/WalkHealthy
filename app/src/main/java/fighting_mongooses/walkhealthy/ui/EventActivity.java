@@ -6,22 +6,30 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Map;
 
 import fighting_mongooses.walkhealthy.R;
+import fighting_mongooses.walkhealthy.adapter.ViewHolder;
 import fighting_mongooses.walkhealthy.objects.Event;
 import fighting_mongooses.walkhealthy.objects.User;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
@@ -40,7 +48,6 @@ public class EventActivity extends AppCompatActivity {
     private Event event;
     private String eventId;
     private Toolbar toolbar;
-    private TableLayout attendeesGoingLayout, notGoingLayout;
     private Button attendEvent, notAttendEvent, removeUserEvent;
 
     @Override
@@ -64,9 +71,6 @@ public class EventActivity extends AppCompatActivity {
         }
 
         eventId = getIntent().getStringExtra(KEY_EXTRA);
-
-        attendeesGoingLayout = (TableLayout) findViewById(R.id.attendeesGoingLayout);
-        notGoingLayout = (TableLayout) findViewById(R.id.notGoingLayout);
         attendEvent = (Button) findViewById(R.id.attendEvent);
         notAttendEvent = (Button) findViewById(R.id.notAttendEvent);
         removeUserEvent = (Button) findViewById(R.id.removeUserEvent);
@@ -91,6 +95,7 @@ public class EventActivity extends AppCompatActivity {
         });
 
         fetchEventData();
+        addAttendees();
     }
 
     /**
@@ -106,7 +111,6 @@ public class EventActivity extends AppCompatActivity {
                         EventActivity.this.event = fbEvent;
                         toolbar.setTitle(event.getName().toUpperCase());
                         toolbar.setSubtitle("Walk Healthy Event");
-                        addAttendees();
                     }
                 }
 
@@ -121,41 +125,42 @@ public class EventActivity extends AppCompatActivity {
      * Gets all event attendees.
      */
     private void addAttendees() {
-        attendeesGoingLayout.removeViews(0, attendeesGoingLayout.getChildCount());
-        notGoingLayout.removeViews(0, notGoingLayout.getChildCount());
+        final RecyclerView attendingRecyclerView = (RecyclerView)findViewById(R.id.attendingRecyclerView);
+        final RecyclerView notAttendingRecyclerView = (RecyclerView)findViewById(R.id.notAttendingRecyclerView);
 
-        for (Map.Entry<String, Boolean> entry : event.getAttendees().entrySet()) {
-            if (entry.getValue()) {
-                addUserToLayout(attendeesGoingLayout, entry.getKey());
-            } else {
-                addUserToLayout(notGoingLayout, entry.getKey());
-            }
-        }
+        fetchAttendees(attendingRecyclerView, true);
+        fetchAttendees(notAttendingRecyclerView, false);
     }
 
-    /**
-     * Adds the user to the specific layout.
-     */
-    private void addUserToLayout(final TableLayout layout, final String userId) {
-        DatabaseTools.getDbUsersReference().child(userId)
-            .addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    final User user = dataSnapshot.getValue(User.class);
-                    if (user != null) {
-                        TableRow tr = new TableRow(EventActivity.this);
-                        TextView tv = new TextView(EventActivity.this);
-                        tv.setText("- " + user.getUsername());
-                        tr.addView(tv);
-                        layout.addView(tr);
-                    }
-                }
+    private void fetchAttendees(final RecyclerView attendeesRecyclerView, final boolean going) {
+        Query query = DatabaseTools.getDbUsersReference().orderByChild("events/" + eventId).equalTo(going);
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
+        final FirebaseRecyclerOptions<User> options =
+                new FirebaseRecyclerOptions.Builder<User>()
+                        .setQuery(query, User.class)
+                        .build();
 
-                }
-            });
+        FirebaseRecyclerAdapter<User, ViewHolder> adapter = new FirebaseRecyclerAdapter<User, ViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(ViewHolder holder, final int position, User model) {
+                holder.setTitle(model.getUsername());
+                holder.setDescription(model.getBirthday());
+                holder.setImageView(R.drawable.ic_account_circle_black_24dp);
+            }
+
+            @Override
+            public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                // Create a new instance of the ViewHolder, in this case we are using a custom
+                // layout called R.layout.view_row for each item
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.view_row, parent, false);
+                return new ViewHolder(view);
+            }
+        };
+
+        attendeesRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        attendeesRecyclerView.setAdapter(adapter);
+        adapter.startListening();
     }
 
     /**

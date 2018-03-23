@@ -28,6 +28,11 @@ public class User {
     private Map<String,Boolean> groups = new HashMap<>();
 
     /**
+     * Contains all groups that the user has joined.
+     */
+    private Map<String,Boolean> events = new HashMap<>();
+
+    /**
      * Empty Class constructor. (Needed for Firebase)
      */
     public User() {
@@ -40,22 +45,6 @@ public class User {
     public User(String username, String birthday) {
         this.username = username;
         this.birthday = birthday;
-    }
-
-    /**
-     * Method to add a group to the user.
-     */
-    public void addGroup(String grpName) {
-        groups.put(grpName, true);
-    }
-
-    /**
-     * Mathod to get all groups the user has joined.
-     *
-     * @return      the group map.
-     */
-    public Map<String, Boolean> getGroups() {
-        return new HashMap<>(groups);
     }
 
     /**
@@ -76,20 +65,52 @@ public class User {
         return birthday;
     }
 
-
     /**
      * Setter for user's birthday.
      * Assumes birthday has already been validated.
      */
-    public void setBirthday(String b){
-        this.birthday = b;
+    public void setBirthday(String birthday){
+        this.birthday = birthday;
     }
 
     /**
      * Setter for user's username.
      * Assumes username has already been validated.
      */
-    public void setUsername(String u){
-        this.username = u;
+    public void setUsername(String username){
+        this.username = username;
     }
+
+    /**
+     * Method to add a group to the user.
+     */
+    public void addGroup(String grpName) {
+        groups.put(grpName, true);
+    }
+
+    /**
+     * Method to get all groups the user has joined.
+     *
+     * @return      the group map.
+     */
+    public Map<String, Boolean> getGroups() {
+        return new HashMap<>(groups);
+    }
+
+    /**
+     * Method to add a event to the user.
+     */
+    public void addEvent(String eventId) {
+        events.put(eventId, true);
+    }
+
+    /**
+     * Method to get all events the user has joined.
+     *
+     * @return      the event map.
+     */
+    public Map<String, Boolean> getEvents() {
+        return new HashMap<>(events);
+    }
+
 }
