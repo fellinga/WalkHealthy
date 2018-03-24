@@ -2,6 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
+        android:id="@+id/action_editEvent"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="Edit Event"
+        app:showAsAction="never" />
+
+    <item
     android:id="@+id/action_deleteEvent"
     android:icon="@android:drawable/ic_menu_preferences"
     android:title="Delete Event"

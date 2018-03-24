@@ -39,13 +39,16 @@
             android:label="@string/title_activity_newuser" />
         <activity
             android:name=".ui.GroupActivity"
-            android:label="@string/title_activity_newuser" />
+            android:label="Group" />
         <activity
             android:name=".ui.GroupEditActivity"
-            android:label="@string/title_activity_newuser" />
+            android:label="Edit Group" />
         <activity
             android:name=".ui.EventActivity"
-            android:label="@string/title_activity_newuser" />
+            android:label="Event" />
+        <activity
+            android:name=".ui.EventEditActivity"
+            android:label="New Event" />
     </application>
 
 </manifest>

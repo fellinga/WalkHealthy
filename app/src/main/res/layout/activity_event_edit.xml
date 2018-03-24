@@ -1,0 +1,137 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/etsu_blue"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="fighting_mongooses.walkhealthy.ui.EventEditActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/etsu_gold"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_marginTop="70dp"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/eventNameID"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="EVENT NAME"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+                <EditText
+                    android:id="@+id/inputEventName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/white"
+                    android:inputType="textCapWords"
+                    android:padding="10dp"
+                    android:singleLine="true"
+                    android:textColor="@color/etsu_blue" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="20dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/intensityHead"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="INTENSITY"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/checkLow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Low"/>
+
+                    <CheckBox
+                        android:id="@+id/checkMed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Medium"/>
+
+                    <CheckBox
+                        android:id="@+id/checkHigh"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="High"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/startDateHead"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="START DATE"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+                <DatePicker
+                    android:background="@color/white"
+                    android:id="@+id/datePicker"
+                    android:layout_width="match_parent"
+                    android:calendarViewShown="true"
+                    android:spinnersShown="false"
+                    android:layout_weight="4"
+                    android:layout_marginBottom="20dp"
+                    android:layout_height="0dp" />
+
+                <TimePicker
+                    android:background="@color/white"
+                    android:id="@+id/timePicker"
+                    android:layout_weight="4"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </ScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

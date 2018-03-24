@@ -133,7 +133,6 @@ public final class DatabaseTools {
      * Updates an users profile
      *
      * @param user   User object that should be modified
-     * @return       true if user is updated false otherwise
      */
     public static void updateCurrentUser(final User user) {
         // TODO check for unique username - return false if duplicate
@@ -145,9 +144,7 @@ public final class DatabaseTools {
      */
     public static UploadTask setProfilePicture(Uri uri) {
         final StorageReference ref = storageUserPicFolderRef.child(getCurrentUsersUid());
-        final UploadTask uploadTask = ref.putFile(uri);
-
-        return uploadTask;
+        return ref.putFile(uri);
     }
 
     /**
@@ -158,9 +155,7 @@ public final class DatabaseTools {
      */
     public static FileDownloadTask getProfilePicture(String uid, File file) {
         final StorageReference ref = storageUserPicFolderRef.child(uid);
-        final FileDownloadTask downloadTask = ref.getFile(file);
-
-        return downloadTask;
+        return ref.getFile(file);
     }
 
     public static void logOffUser() {
@@ -174,6 +169,9 @@ public final class DatabaseTools {
     public static void deleteUser() {
         final FirebaseUser fbUser = mAuth.getCurrentUser();
         final String userId = fbUser.getUid();
+
+        // REMOVE STORAGE ENTRY'S
+        storageUserPicFolderRef.child(userId).delete();
 
         // REMOVE USER FROM ALL GROUPS
         dbUsersRef.child(userId).child(GROUPS_PATH).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -194,10 +192,6 @@ public final class DatabaseTools {
         dbUsersRef.child(userId).removeValue();
         // DELETE USER FROM AUTHENTICATION
         fbUser.delete();
-    }
-
-    public void reAuthenticate(String password, Context context) {
-
     }
 
     //////////////////////////////////////////////
@@ -273,23 +267,35 @@ public final class DatabaseTools {
      * @return          True if group removed false otherwise.
      */
     public static boolean removeGroup(final String groupName) {
-        if (groupName.equals(ALL_USERS_GROUP)) {
-            return false;
-        }
-
+        // REMOVE ALL USERS FROM GROUP
         dbUsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    snapshot.getRef().child(GROUPS_PATH).child(groupName).removeValue();
+                    removeUserFromGroup(snapshot.getKey(), groupName);
                 }
-                dbGroupsRef.child(groupName).removeValue();
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
         });
 
+        // REMOVE ALL GROUP EVENTS
+        dbEventsRef.orderByChild("ownerGroup").equalTo(groupName)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            removeEvent(snapshot.getKey(), groupName);
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+
+        // REMOVE ACTUAL GROUP
+        dbGroupsRef.child(groupName).removeValue();
         return true;
     }
 
@@ -299,17 +305,21 @@ public final class DatabaseTools {
 
     /**
      * Adds the new event to the event reference.
-     *
      */
-    public static void createEvent(final String groupName, final long startTime) {
+    public static void createEvent(final Event event) {
         // CREATE REFERENCE
         DatabaseReference ref = dbEventsRef.push();
         // ADD EVENT TO REFERENCE
-        Event event = new Event(groupName, "Event", startTime);
         ref.setValue(event);
-
         // ADD THE EVENT KEY TO THE GROUP
-        dbGroupsRef.child(groupName).child(EVENTS_PATH).child(ref.getKey()).setValue(true);
+        dbGroupsRef.child(event.getOwnerGroup()).child(EVENTS_PATH).child(ref.getKey()).setValue(true);
+    }
+
+    /**
+     * Updates an existing event.
+     */
+    public static void updateEvent(final Event event, final String eventId) {
+        dbEventsRef.child(eventId).setValue(event);
     }
 
     /**
@@ -317,9 +327,9 @@ public final class DatabaseTools {
      *
      * @param eventId    The eventId where the user should be added.
      */
-    public static void addUserToEvent(final String eventId, boolean going) {
-        dbEventsRef.child(eventId).child("attendees").child(getCurrentUsersUid()).setValue(going);
-        dbUsersRef.child(getCurrentUsersUid()).child("events").child(eventId).setValue(going);
+    public static void addUserToEvent(final String userId, final String eventId, boolean going) {
+        dbEventsRef.child(eventId).child("attendees").child(userId).setValue(going);
+        dbUsersRef.child(userId).child("events").child(eventId).setValue(going);
     }
 
     /**
@@ -327,9 +337,9 @@ public final class DatabaseTools {
      *
      * @param eventId    The eventId where the user should be removed.
      */
-    public static void removeUserFromEvent(final String eventId) {
-        dbEventsRef.child(eventId).child("attendees").child(getCurrentUsersUid()).removeValue();
-        dbUsersRef.child(getCurrentUsersUid()).child("events").child(eventId).removeValue();
+    public static void removeUserFromEvent(final String userId, final String eventId) {
+        dbEventsRef.child(eventId).child("attendees").child(userId).removeValue();
+        dbUsersRef.child(userId).child("events").child(eventId).removeValue();
     }
 
     /**
@@ -339,6 +349,19 @@ public final class DatabaseTools {
      * @param eventId The event that should be removed.
      */
     public static void removeEvent(final String eventId, final String groupName) {
+        // REMOVE ALL USERS FROM EVENT
+        dbUsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    removeUserFromEvent(snapshot.getKey(), eventId);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
         dbEventsRef.child(eventId).removeValue();
         dbGroupsRef.child(groupName).child(EVENTS_PATH).child(eventId).removeValue();
     }

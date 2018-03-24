@@ -32,6 +32,11 @@ public class Event {
     private long startTime;
 
     /**
+     * The event start time.
+     */
+    private int intensity;
+
+    /**
      * List that contains at least start
      * and endpoint.
      */
@@ -52,14 +57,11 @@ public class Event {
     /**
      * Class constructor.
      */
-    public Event(String ownerGroup, String name, long startTime, Location... locations) {
+    public Event(String ownerGroup, String name, long startTime, int intensity) {
         this.ownerGroup = ownerGroup;
         this.name = name;
         this.startTime = startTime;
-
-        for (Location l : locations) {
-            addLocation(l);
-        }
+        this.intensity = intensity;
     }
 
     /**
@@ -72,6 +74,14 @@ public class Event {
     }
 
     /**
+     * Setter for owning group
+     */
+    public void setOwnerGroup(String ownerGroup) {
+        this.ownerGroup = ownerGroup;
+    }
+
+
+    /**
      * Getter for events name
      *
      * @return      The name
@@ -81,12 +91,42 @@ public class Event {
     }
 
     /**
+     * Setter for event name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
      * Getter for events startTime
      *
      * @return      The startTime
      */
     public long getStartTime() {
         return startTime;
+    }
+
+    /**
+     * Setter for events startTime
+     */
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    /**
+     * Getter for events startTime
+     *
+     * @return      The startTime
+     */
+    public int getIntensity() {
+        return intensity;
+    }
+
+    /**
+     * Setter for intensity
+     */
+    public void setIntensity(int intensity) {
+        this.intensity = intensity;
     }
 
     /**

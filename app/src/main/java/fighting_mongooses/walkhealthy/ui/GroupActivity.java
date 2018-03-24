@@ -52,7 +52,7 @@ public class GroupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // add back arrow to toolbar
@@ -103,7 +103,7 @@ public class GroupActivity extends AppCompatActivity {
      */
     private void handleFab() {
         if (isCurrentUserAdmin()) {
-            FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.addEvent);
+            FloatingActionButton myFab = findViewById(R.id.addEvent);
             myFab.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     openNewEventDialog();
@@ -118,7 +118,7 @@ public class GroupActivity extends AppCompatActivity {
      * to the members lists.
      */
     private void fetchMembers() {
-        final RecyclerView memberRecyclerView = (RecyclerView)findViewById(R.id.memberRecyclerView);
+        final RecyclerView memberRecyclerView = findViewById(R.id.memberRecyclerView);
         Query query = DatabaseTools.getDbUsersReference().orderByChild("groups/" + groupName).equalTo(true);
 
         final FirebaseRecyclerOptions<User> options =
@@ -153,7 +153,7 @@ public class GroupActivity extends AppCompatActivity {
      * Gets all group related events
      */
     private void fetchEvents() {
-        final RecyclerView eventRecyclerView = (RecyclerView)findViewById(R.id.eventRecyclerView);
+        final RecyclerView eventRecyclerView = findViewById(R.id.eventRecyclerView);
         Query query = DatabaseTools.getDbEventsReference().orderByChild("ownerGroup").equalTo(groupName);
 
         final FirebaseRecyclerOptions<Event> options =
@@ -197,33 +197,20 @@ public class GroupActivity extends AppCompatActivity {
      * @param eventId Id of the event
      */
     private void openEventActivity(String eventId) {
-        // SEND THE GROUP NAME TO THE GROUP ACTIVITY
+        // SEND THE EVENT ID TO THE EVENT ACTIVITY
         Intent intent = new Intent(GroupActivity.this, EventActivity.class);
         intent.putExtra(EventActivity.KEY_EXTRA, eventId);
         startActivity(intent);
     }
 
     /**
-     * Adds a new events
+     * Opens the new event dialog.
      */
     private void openNewEventDialog() {
-        final AlertDialog.Builder inputAlert = new AlertDialog.Builder(this);
-        inputAlert.setTitle("Do you want to create a new event?");
-        inputAlert.setPositiveButton("Create", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                DatabaseTools.createEvent(groupName, System.currentTimeMillis());
-                Toast.makeText(GroupActivity.this, "Event created.", Toast.LENGTH_SHORT).show();
-            }
-        });
-        inputAlert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        AlertDialog alertDialog = inputAlert.create();
-        alertDialog.show();
+        // SEND THE GROUP NAME TO THE EVENT EDIT ACTIVITY
+        Intent intent = new Intent(GroupActivity.this, EventEditActivity.class);
+        intent.putExtra(EventEditActivity.KEY_EXTRA, groupName);
+        startActivity(intent);
     }
 
     /**

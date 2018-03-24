@@ -49,7 +49,7 @@ public class GroupEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_group_edit);
 
         // toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // add back arrow to toolbar
@@ -59,12 +59,14 @@ public class GroupEditActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_black_24dp);
         }
 
-        inputGroupname = (EditText) findViewById(R.id.groupname);
-        alluserlayout = (TableLayout) findViewById(R.id.alluserlayout);
-        addeduserlayout = (TableLayout) findViewById(R.id.addeduserlayout);
+        inputGroupname = findViewById(R.id.groupname);
+        alluserlayout = findViewById(R.id.alluserlayout);
+        addeduserlayout = findViewById(R.id.addeduserlayout);
 
         if (getIntent().hasExtra(KEY_EXTRA)) {
             getSupportActionBar().setTitle("Edit group");
+            inputGroupname.setBackgroundColor(Color.GRAY);
+            inputGroupname.setFocusable(false);
             fetchGroupData(getIntent().getStringExtra(KEY_EXTRA));
         } else {
             getSupportActionBar().setTitle("New group");
@@ -80,21 +82,18 @@ public class GroupEditActivity extends AppCompatActivity {
      * supported right now)
      */
     private void fetchGroupData(final String groupName) {
-        inputGroupname.setBackgroundColor(Color.GRAY);
-        inputGroupname.setFocusable(false);
-
         // LOAD GROUP OBJECT
         DatabaseTools.getDbGroupsReference().child(groupName).
-                addValueEventListener(new ValueEventListener() {
+                addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        final Group fbGroup = dataSnapshot.getValue(Group.class);
-                        if (fbGroup == null) {
+                        group = dataSnapshot.getValue(Group.class);
+                        if (group != null) {
+                            inputGroupname.setText(group.getName());
+                            addMembers();
+                        } else {
                             finish();
                         }
-                        GroupEditActivity.this.group = fbGroup;
-                        inputGroupname.setText(group.getName());
-                        addMembers();
                     }
 
                     @Override
@@ -159,7 +158,7 @@ public class GroupEditActivity extends AppCompatActivity {
      * @param uid      User ID number
      * @param username Users username
      */
-    private boolean removeUserFromInvitedUsers(final String uid, final String username) {
+    private void removeUserFromInvitedUsers(final String uid, final String username) {
         if (!DatabaseTools.getCurrentUsersUid().equals(uid)) {
             removedUsers.add(uid);
             for (int i = 0; i < addeduserlayout.getChildCount(); i++) {
@@ -169,11 +168,9 @@ public class GroupEditActivity extends AppCompatActivity {
                     group.removeMember(uid);
                     addedUsers.remove(uid);
                     addeduserlayout.removeViewAt(i);
-                    return true;
                 }
             }
         }
-        return false;
     }
 
     /**
@@ -198,6 +195,11 @@ public class GroupEditActivity extends AppCompatActivity {
                     });
                     tr.addView(tv);
                     alluserlayout.addView(tr);
+
+                    // ADD CURRENT USER TO ADDED USER LIST
+                    if (snapshot.getKey().equals(DatabaseTools.getCurrentUsersUid())) {
+                        addUserToInvitedUsers(snapshot.getKey(), user.getUsername());
+                    }
                 }
             }
 
@@ -233,7 +235,7 @@ public class GroupEditActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_groupedit_toolbar, menu);
+        getMenuInflater().inflate(R.menu.menu_edit_toolbar, menu);
         return true;
     }
 

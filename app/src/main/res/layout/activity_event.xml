@@ -80,32 +80,40 @@
 
             </LinearLayout>
 
-            <Button
-                android:id="@+id/attendEvent"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:text="Going."
-                android:textAlignment="center"
-                android:textColor="@color/red"
-                android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_horizontal_margin" />
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/notAttendEvent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:background="@color/white"
-                android:text="Not going."
-                android:textAlignment="center"
-                android:textColor="@color/red" />
+                <Button
+                    android:id="@+id/attendEvent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:layout_marginRight="2dp"
+                    android:text="Going."
+                    android:textAlignment="center"
+                    android:textColor="@color/red" />
+
+                <Button
+                    android:id="@+id/notAttendEvent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="2dp"
+                    android:background="@color/white"
+                    android:text="Not going."
+                    android:textAlignment="center"
+                    android:textColor="@color/red" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/removeUserEvent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:background="@color/white"
                 android:text="Remove me from list."
                 android:textAlignment="center"
