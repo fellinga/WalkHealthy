@@ -1,17 +1,23 @@
 package fighting_mongooses.walkhealthy.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -32,6 +38,8 @@ import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 public class EventEditActivity extends AppCompatActivity {
 
     public static final String KEY_EXTRA = "walkhealthy.KEY_EVENTEDIT";
+    private final int PLACE_PICKER_START = 1;
+    private final int PLACE_PICKER_END = 2;
 
     private Event event;
     private String eventId;
@@ -39,6 +47,10 @@ public class EventEditActivity extends AppCompatActivity {
     private CheckBox checkLow, checkMed, checkHigh;
     private DatePicker datePicker;
     private TimePicker timePicker;
+    private Button startLocBtn, endLocBtn;
+    private TextView startLocationLabel, endLocationLabel;
+    private Place endPlace;
+    private Place startPlace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +68,10 @@ public class EventEditActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_black_24dp);
         }
 
+        startLocBtn = findViewById(R.id.startLocBtn);
+        endLocBtn = findViewById(R.id.endLocBtn);
+        startLocationLabel = findViewById(R.id.startLocationLabel);
+        endLocationLabel = findViewById(R.id.endLocationLabel);
         inputEventName = findViewById(R.id.inputEventName);
         checkLow = findViewById(R.id.checkLow);
         checkMed = findViewById(R.id.checkMed);
@@ -78,6 +94,18 @@ public class EventEditActivity extends AppCompatActivity {
             finish();
         }
 
+        startLocBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openMap(PLACE_PICKER_START);
+            }
+        });
+        endLocBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openMap(PLACE_PICKER_END);
+            }
+        });
         checkLow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,6 +140,8 @@ public class EventEditActivity extends AppCompatActivity {
                         if (event != null) {
                             inputEventName.setText(event.getName());
                             setCheckBoxes(event.getIntensity());
+                            setStartPlace(event.getRouteLocation(0));
+                            setEndPlace(event.getRouteLocation(1));
                             setDateTime();
                         } else {
                             finish();
@@ -123,6 +153,54 @@ public class EventEditActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    /**
+     * Open map to pick start or end location
+     */
+    private void openMap(int requestCode) {
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+        if (startPlace != null && requestCode == PLACE_PICKER_START) {
+            builder.setLatLngBounds(new LatLngBounds(startPlace.getLatLng(), startPlace.getLatLng()));
+        } else if (endPlace != null && requestCode == PLACE_PICKER_END) {
+            builder.setLatLngBounds(new LatLngBounds(endPlace.getLatLng(), endPlace.getLatLng()));
+        }
+        try {
+            startActivityForResult(builder.build(this), requestCode);
+        } catch (Exception e) {
+
+        }
+    }
+
+    /**
+     * Returns from map activity
+     */
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_PICKER_START) {
+            if (resultCode == RESULT_OK) {
+                setStartPlace(PlacePicker.getPlace(data, this));
+            }
+        } else if (requestCode == PLACE_PICKER_END) {
+            if (resultCode == RESULT_OK) {
+                setEndPlace(PlacePicker.getPlace(data, this));
+            }
+        }
+    }
+
+    /**
+     * Sets the start location
+     */
+    private void setStartPlace(Place place) {
+        startPlace = place;
+        startLocationLabel.setText("Place: " + startPlace.getAddress());
+    }
+
+    /**
+     * Sets the end location
+     */
+    private void setEndPlace(Place place) {
+        endPlace = place;
+        endLocationLabel.setText("Place: " + endPlace.getAddress());
     }
 
     /**
@@ -162,7 +240,13 @@ public class EventEditActivity extends AppCompatActivity {
      */
     private void createEvent() {
         String inputName = inputEventName.getText().toString();
-        if (inputName.length() < 3) return;
+        if (inputName.length() < 3) {
+            Toast.makeText(EventEditActivity.this, "Event name to short!", Toast.LENGTH_SHORT).show();
+            return;
+        } else if (startPlace == null || endPlace == null) {
+            Toast.makeText(EventEditActivity.this, "Please choose start and end location!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // SET NAME
         event.setName(inputName);
@@ -176,6 +260,9 @@ public class EventEditActivity extends AppCompatActivity {
                 timePicker.getHour(), timePicker.getMinute(), 0);
         long startTime = calendar.getTimeInMillis();
         event.setStartTime(startTime);
+        // SET START AND END
+        event.addRouteLocation(startPlace, 0);
+        event.addRouteLocation(endPlace, 1);
 
         // CREATE EVENT
         if (eventId != null && eventId.length() > 5) {

@@ -4,6 +4,7 @@ package fighting_mongooses.walkhealthy.ui;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,9 +16,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
@@ -45,6 +57,8 @@ public class EventActivity extends AppCompatActivity {
     private Event event;
     private String eventId;
     private Toolbar toolbar;
+    private MapView mapView;
+    private TextView eventInfo;
     private Button attendEvent, notAttendEvent, removeUserEvent;
 
     @Override
@@ -68,6 +82,7 @@ public class EventActivity extends AppCompatActivity {
         }
 
         eventId = getIntent().getStringExtra(KEY_EXTRA);
+        eventInfo = findViewById(R.id.eventInfo);
         attendEvent = findViewById(R.id.attendEvent);
         notAttendEvent = findViewById(R.id.notAttendEvent);
         removeUserEvent = findViewById(R.id.removeUserEvent);
@@ -107,8 +122,8 @@ public class EventActivity extends AppCompatActivity {
                     if (fbEvent != null) {
                         EventActivity.this.event = fbEvent;
                         toolbar.setTitle(event.getName().toUpperCase());
-                        toolbar.setSubtitle("Intensity: " + event.getIntensity()
-                                + " ," + new Date(event.getStartTime()));
+                        toolbar.setSubtitle("Walk Healthy Event");
+                        setEventInfo();
                     }
                 }
 
@@ -117,6 +132,17 @@ public class EventActivity extends AppCompatActivity {
 
                 }
             });
+    }
+
+    /**
+     * TODO CHANGE THE TEXT VIEW
+     * Sets all the event Infos.
+     */
+    private void setEventInfo() {
+        eventInfo.setText("Intensity: " + event.getIntensity() +
+                        "\nDate: " + new Date(event.getStartTime()) +
+                        "\nStart: " + event.getRouteLocation(0).getAddress() +
+                        "\nEnd: " + event.getRouteLocation(1).getAddress());
     }
 
     /**

@@ -17,6 +17,7 @@
 
     <ScrollView
         android:layout_width="match_parent"
+        android:layout_marginTop="70dp"
         android:layout_height="wrap_content">
 
         <LinearLayout
@@ -29,95 +30,115 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="70dp"
-                android:orientation="vertical">
+                android:layout_marginBottom="20dp"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:padding="10dp">
 
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="20dp"
-                    android:background="@color/white"
-                    android:orientation="vertical"
-                    android:padding="10dp">
+                    android:layout_height="wrap_content"
+                    android:text="EVENT INFO"
+                    android:textSize="20sp" />
 
-                    <TextView
-                        android:id="@+id/headEventAttendees"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="ATTENDING"
-                        android:textSize="20sp" />
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/attendingRecyclerView"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clipChildren="false" />
-
-                </LinearLayout>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/eventInfo"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="20dp"
-                    android:background="@color/white"
-                    android:orientation="vertical"
-                    android:padding="10dp">
-
-                    <TextView
-                        android:id="@+id/headEventNotAttendees"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="NOT ATTENDING"
-                        android:textSize="20sp" />
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/notAttendingRecyclerView"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clipChildren="false" />
-
-                </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:layout_marginBottom="20dp"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:padding="10dp">
 
-                <Button
-                    android:id="@+id/attendEvent"
+                <TextView
+                    android:id="@+id/headEventAttendees"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@color/white"
-                    android:layout_marginRight="2dp"
-                    android:text="Going."
-                    android:textAlignment="center"
-                    android:textColor="@color/red" />
+                    android:text="ATTENDING"
+                    android:textSize="20sp" />
 
-                <Button
-                    android:id="@+id/notAttendEvent"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/attendingRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipChildren="false" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="20dp"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/headEventNotAttendees"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="2dp"
+                    android:text="NOT ATTENDING"
+                    android:textSize="20sp" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/notAttendingRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipChildren="false" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/attendEvent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="2dp"
+                        android:layout_weight="1"
+                        android:background="@color/white"
+                        android:text="Going."
+                        android:textAlignment="center"
+                        android:textColor="@color/red" />
+
+                    <Button
+                        android:id="@+id/notAttendEvent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:layout_weight="1"
+                        android:background="@color/white"
+                        android:text="Not going."
+                        android:textAlignment="center"
+                        android:textColor="@color/red" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/removeUserEvent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"
                     android:background="@color/white"
-                    android:text="Not going."
+                    android:text="Remove me from list."
                     android:textAlignment="center"
                     android:textColor="@color/red" />
             </LinearLayout>
-
-            <Button
-                android:id="@+id/removeUserEvent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_horizontal_margin"
-                android:background="@color/white"
-                android:text="Remove me from list."
-                android:textAlignment="center"
-                android:textColor="@color/red" />
 
         </LinearLayout>
 
