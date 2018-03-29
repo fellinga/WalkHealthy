@@ -170,7 +170,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
-                android:text="@string/headSettResetPassword"
+                android:text="@string/headSettChangePassword"
                 android:textAlignment="center"
                 android:textColor="@color/red" />
 

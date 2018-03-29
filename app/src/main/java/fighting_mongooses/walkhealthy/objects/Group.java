@@ -2,6 +2,15 @@ package fighting_mongooses.walkhealthy.objects;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Group class that represents a single group entry in the database.
@@ -31,6 +40,11 @@ public class Group {
      * Map contains all events of this group.
      */
     private Map<String,Boolean> events = new HashMap<>();
+
+    /**
+     * Map contains the location data for the main base of operations for the group
+     */
+    private java.util.Map<String, Object> location = new HashMap<>();
 
     /**
      * Empty Class constructor. (Needed for Firebase)
@@ -113,5 +127,44 @@ public class Group {
      */
     public Map<String, Boolean> getEvents() {
         return new HashMap<>(events);
+    }
+
+    public void setLocation(Place place){
+        this.location = new HashMap<>();
+        this.location.put("lat", place.getLatLng().latitude);
+        this.location.put("lng", place.getLatLng().longitude);
+        this.location.put("address", place.getAddress());
+    }
+
+    /*
+     * Get a reference to the location dictionary
+     * @author Jake Gillenwater
+     */
+    private Map<String, Object> getLocation(){
+        return this.location;
+    }
+
+    /*
+     * Get the latitude of the group's main location
+     * @author Jake Gillenwater
+     */
+    public double getLocationLatitude(){
+        return (double)this.location.get("lat");
+    }
+
+    /*
+     * Get the longitude of the group's main location
+     * @author Jake Gillenwater
+     */
+    public double getLocationLongitude(){
+        return (double)this.location.get("lng");
+    }
+
+    /*
+     * Get the address of the group's main location
+     * @author Jake Gillenwater
+     */
+    public String getLocationAddress(){
+        return ((CharSequence)this.location.get("address")).toString();
     }
 }

@@ -30,7 +30,7 @@
     <string name="headSettName">Username</string>
     <string name="headSettBirthday">Birthday</string>
     <string name="headSettDeleteAcc">Delete Account</string>
-    <string name="headSettResetPassword">Reset Password</string>
+    <string name="headSettChangePassword">Change Password</string>
     <string name="headGrpDeleteGrp">Delete Group</string>
     <string name="headMainUserGroups">YOUR GROUPS</string>
     <string name="headMainAllGroups">ALL GROUPS</string>

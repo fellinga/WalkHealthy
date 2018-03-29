@@ -17,7 +17,9 @@ import java.util.Locale;
 public final class LocationHelper {
 
     public static Place transformLatLngToPlace(final double lat, final double lng, String address) {
-        if (address == null) address = "Lat: " + lat + ", Lng: " + lng;
+        if (address == null){
+            address = "Lat: " + lat + ", Lng: " + lng;
+        }
         final String newAddress = address;
 
         return new Place() {
