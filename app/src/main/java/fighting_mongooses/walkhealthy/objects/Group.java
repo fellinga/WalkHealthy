@@ -129,10 +129,16 @@ public class Group {
         location.put("lng", place.getLatLng().longitude);
     }
 
+    public Map<String,Object> getLocation() {
+        return new HashMap<>(location);
+    }
+
+    @Exclude
     public double getLatitude(){
         return (double)location.get("lng");
     }
 
+    @Exclude
     public double getLongitude(){
         return (double)location.get("lat");
     }
