@@ -236,7 +236,7 @@ public class EventEditActivity extends AppCompatActivity {
 
     /**
      * Takes the users input to create a new
-     * group in the database.
+     * event in the database.
      */
     private void createEvent() {
         String inputName = inputEventName.getText().toString();

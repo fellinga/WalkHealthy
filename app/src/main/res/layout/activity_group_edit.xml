@@ -51,6 +51,13 @@
                     android:singleLine="true"
                     android:textColor="@color/etsu_blue" />
 
+                <!-- TODO: change this to use an xml string value -->
+                <Button
+                    android:id="@+id/mainLocBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="SET MAIN LOCATION" />
+
             </LinearLayout>
 
             <LinearLayout

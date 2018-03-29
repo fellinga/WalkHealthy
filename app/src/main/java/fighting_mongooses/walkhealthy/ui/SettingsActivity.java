@@ -96,7 +96,7 @@ public class SettingsActivity extends AppCompatActivity {
         resetPassword.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                resetPassword();
+                changePassword();
             }
         });
 
@@ -143,6 +143,8 @@ public class SettingsActivity extends AppCompatActivity {
                     });
         } catch (Exception e) {
             // File not created
+            Toast.makeText(this, "Profile pic not found",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -267,7 +269,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     //endregion
 
-//region RESET PASSWORD
+//region CHANGE PASSWORD
 
     /**
      * Ask the user to create a new password, and confirms it.
@@ -275,7 +277,7 @@ public class SettingsActivity extends AppCompatActivity {
      * If not verified, will display a toast notification.
      * @author Jake Gillenwater
      */
-    private void resetPassword(){
+    private void changePassword(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("New Password:");
         // TODO: Set a message showing the requirements for a password
@@ -327,39 +329,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(input.getText().toString().equals(newPasswordText)){
-                    // Update database
-                    final FirebaseUser fbUser = DatabaseTools.getFirebaseAuth().getCurrentUser();
-                    final String currentEmail = DatabaseTools.getCurrentUsersEmail();
-
-                    final AlertDialog.Builder inputAlert = new AlertDialog.Builder(SettingsActivity.this);
-                    inputAlert.setTitle("Re authenticate");
-                    final EditText passwordInput = new EditText(SettingsActivity.this);
-                    passwordInput.setHint("Your current password");
-                    inputAlert.setView(passwordInput);
-                    inputAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            AuthCredential credential = EmailAuthProvider
-                                    .getCredential(currentEmail, passwordInput.getText().toString());
-
-                            fbUser.reauthenticate(credential)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            fbUser.updatePassword(newPasswordText);
-                                            Toast.makeText(getApplicationContext(), "Password changed.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                        }
-                    });
-                    inputAlert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    AlertDialog alertDialog = inputAlert.create();
-                    alertDialog.show();
+                    reauthenticatePasswordChange();
                 }
                 else{
                     // TODO: Change this to a proper Strings value message
@@ -376,6 +346,43 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         builder.show();
+    }
+
+    private void reauthenticatePasswordChange(){
+        // Update database
+        final FirebaseUser fbUser = DatabaseTools.getFirebaseAuth().getCurrentUser();
+        final String currentEmail = DatabaseTools.getCurrentUsersEmail();
+
+        final AlertDialog.Builder inputAlert = new AlertDialog.Builder(SettingsActivity.this);
+        inputAlert.setTitle("Re authenticate");
+        final EditText passwordInput = new EditText(SettingsActivity.this);
+        passwordInput.setHint("Your current password");
+        inputAlert.setView(passwordInput);
+        inputAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                AuthCredential credential = EmailAuthProvider
+                        .getCredential(currentEmail, passwordInput.getText().toString());
+
+                // TODO: Error handling if the reauthenticate() or updatePassword() fails
+                fbUser.reauthenticate(credential)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                fbUser.updatePassword(newPasswordText);
+                                Toast.makeText(getApplicationContext(), "Password changed.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        });
+        inputAlert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alertDialog = inputAlert.create();
+        alertDialog.show();
     }
 
 //endregion

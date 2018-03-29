@@ -1,5 +1,6 @@
 package fighting_mongooses.walkhealthy.ui;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,12 +8,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -42,6 +47,8 @@ public class GroupEditActivity extends AppCompatActivity {
     private TableLayout alluserlayout, addeduserlayout;
     private List<String> addedUsers = new ArrayList<>();
     private List<String> removedUsers = new ArrayList<>();
+    private Button mainLocBtn;
+    private Place mainPlace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +69,7 @@ public class GroupEditActivity extends AppCompatActivity {
         inputGroupname = findViewById(R.id.groupname);
         alluserlayout = findViewById(R.id.alluserlayout);
         addeduserlayout = findViewById(R.id.addeduserlayout);
+        mainLocBtn = findViewById(R.id.mainLocBtn);
 
         if (getIntent().hasExtra(KEY_EXTRA)) {
             getSupportActionBar().setTitle("Edit group");
@@ -72,6 +80,11 @@ public class GroupEditActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("New group");
             group = new Group(DatabaseTools.getCurrentUsersUid());
         }
+
+        mainLocBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { openMap(); }
+        });
 
         fetchAllUsers();
     }
@@ -216,7 +229,12 @@ public class GroupEditActivity extends AppCompatActivity {
      */
     private void createGroup() {
         String groupName = inputGroupname.getText().toString();
-        group.setName(groupName);
+
+        if(groupName != null && !groupName.isEmpty() && mainPlace != null){
+            // TODO: Verify this information as valid by adding some more functionality to the VerificationTools class
+            group.setName(groupName);
+            group.setLocation(mainPlace);
+        }
 
         // remove all users from the database who got removed (only edit)
         for (String uid : removedUsers) {
@@ -256,6 +274,36 @@ public class GroupEditActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    /**
+     * Open map to pick the main group location
+     */
+    private void openMap() {
+        int requestCode = 1222;
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+        if (mainPlace != null) {
+            builder.setLatLngBounds(new LatLngBounds(mainPlace.getLatLng(), mainPlace.getLatLng()));
+        }
+
+        try {
+            startActivityForResult(builder.build(this), requestCode);
+        }
+        catch (Exception e) {
+            // TODO: Handle this exception
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Just double check that this was the correct return from setting the group main location.
+        if (requestCode == 1222 && resultCode == RESULT_OK) {
+           setMainPlace( PlacePicker.getPlace(this, data) );
+        }
+    }
+
+    private void setMainPlace(Place p){
+        mainPlace = p;
     }
 
 }

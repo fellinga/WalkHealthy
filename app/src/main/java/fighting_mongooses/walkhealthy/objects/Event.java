@@ -48,7 +48,7 @@ public class Event {
      * List that contains at least start
      * and endpoint.
      */
-    private Map<String,Object> route = new HashMap<>();
+    private java.util.Map<String,Object> route = new HashMap<>();
 
     /**
      * Map contains all attendees of this event.
@@ -138,38 +138,6 @@ public class Event {
     }
 
     /**
-     * Method to add a location to the route.
-     */
-    public void addRouteLocation(Place place, int position) {
-        Map<String,Object> location = new HashMap<>();
-        location.put("address", place.getAddress());
-        location.put("lat", place.getLatLng().latitude);
-        location.put("lng", place.getLatLng().longitude);
-        route.put("loc" + position + "", location);
-    }
-
-    /**
-     * Method to get a location at a specific index.
-     */
-    public Place getRouteLocation(int position) {
-        final Map<String,Object> location = (HashMap)route.get("loc" + position);
-        if (location != null) {
-            double lat = (double)location.get("lat");
-            double lng =(double)location.get("lng");
-            String address = (String)location.get("address");
-            return LocationHelper.transformLatLngToPlace(lat, lng, address);
-        }
-        return LocationHelper.transformLatLngToPlace(0d, 0d, "Location not set.");
-    }
-
-    /**
-     * Method to get all locations (the route)
-     */
-    public Map<String, Object> getRoute() {
-        return new HashMap<>(route);
-    }
-
-    /**
      * Method to add attendee to the group.
      */
     public void addAttendee(String userId) {
@@ -183,5 +151,37 @@ public class Event {
      */
     public Map<String, Boolean> getAttendees() {
         return new HashMap<>(attendees);
+    }
+
+    /**
+     * Method to add a location to the route.
+     */
+    public void addRouteLocation(Place place, int position) {
+        java.util.Map<String,Object> location = new HashMap<>();
+        location.put("address", place.getAddress());
+        location.put("lat", place.getLatLng().latitude);
+        location.put("lng", place.getLatLng().longitude);
+        route.put("loc" + position + "", location);
+    }
+
+    /**
+     * Method to get a location at a specific index.
+     */
+    public Place getRouteLocation(int position) {
+        final java.util.Map<String,Object> location = (HashMap)route.get("loc" + position);
+        if (location != null) {
+            double lat = (double)location.get("lat");
+            double lng =(double)location.get("lng");
+            String address = (String)location.get("address");
+            return LocationHelper.transformLatLngToPlace(lat, lng, address);
+        }
+        return LocationHelper.transformLatLngToPlace(0d, 0d, "Location not set.");
+    }
+
+    /**
+     * Method to get a copy of all locations (the route)
+     */
+    public java.util.Map<String, Object> getRoute() {
+        return new HashMap<>(route);
     }
 }
