@@ -121,7 +121,7 @@ public class GroupEditActivity extends AppCompatActivity {
      * to the members lists.
      */
     private void addMembers() {
-        for (final Map.Entry<String, Boolean> entry : group.getMembers().entrySet()) {
+        for (final Map.Entry<String,Object> entry : group.getMembers().entrySet()) {
             DatabaseTools.getDbUsersReference().child(entry.getKey())
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -233,7 +233,7 @@ public class GroupEditActivity extends AppCompatActivity {
         if(groupName != null && !groupName.isEmpty() && mainPlace != null){
             // TODO: Verify this information as valid by adding some more functionality to the VerificationTools class
             group.setName(groupName);
-            group.setLocation(mainPlace);
+            group.addLocation(mainPlace);
         }
 
         // remove all users from the database who got removed (only edit)

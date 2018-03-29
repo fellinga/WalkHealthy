@@ -32,6 +32,7 @@ import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.adapter.ViewHolder;
 import fighting_mongooses.walkhealthy.objects.Group;
 import fighting_mongooses.walkhealthy.objects.User;
+import fighting_mongooses.walkhealthy.utilities.AutoUpdate;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 
 /**
@@ -228,6 +229,12 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        new AutoUpdate(this).execute();
     }
 
     @Override

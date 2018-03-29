@@ -1,16 +1,8 @@
 package fighting_mongooses.walkhealthy.objects;
 
-import android.location.Location;
-import android.net.Uri;
-
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import fighting_mongooses.walkhealthy.utilities.LocationHelper;
@@ -48,12 +40,12 @@ public class Event {
      * List that contains at least start
      * and endpoint.
      */
-    private java.util.Map<String,Object> route = new HashMap<>();
+    private Map<String,Object> route = new HashMap<>();
 
     /**
      * Map contains all attendees of this event.
      */
-    private Map<String,Boolean> attendees = new HashMap<>();
+    private Map<String,Object> attendees = new HashMap<>();
 
     /**
      * Empty Class constructor. (Needed for Firebase)
@@ -87,7 +79,6 @@ public class Event {
     public void setOwnerGroup(String ownerGroup) {
         this.ownerGroup = ownerGroup;
     }
-
 
     /**
      * Getter for events name
@@ -149,7 +140,7 @@ public class Event {
      *
      * @return      the attendees map.
      */
-    public Map<String, Boolean> getAttendees() {
+    public Map<String, Object> getAttendees() {
         return new HashMap<>(attendees);
     }
 
@@ -157,7 +148,7 @@ public class Event {
      * Method to add a location to the route.
      */
     public void addRouteLocation(Place place, int position) {
-        java.util.Map<String,Object> location = new HashMap<>();
+        Map<String,Object> location = new HashMap<>();
         location.put("address", place.getAddress());
         location.put("lat", place.getLatLng().latitude);
         location.put("lng", place.getLatLng().longitude);
@@ -168,7 +159,7 @@ public class Event {
      * Method to get a location at a specific index.
      */
     public Place getRouteLocation(int position) {
-        final java.util.Map<String,Object> location = (HashMap)route.get("loc" + position);
+        final Map<String,Object> location = (HashMap)route.get("loc" + position);
         if (location != null) {
             double lat = (double)location.get("lat");
             double lng =(double)location.get("lng");
@@ -181,7 +172,7 @@ public class Event {
     /**
      * Method to get a copy of all locations (the route)
      */
-    public java.util.Map<String, Object> getRoute() {
+    public Map<String, Object> getRoute() {
         return new HashMap<>(route);
     }
 }

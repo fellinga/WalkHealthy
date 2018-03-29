@@ -25,12 +25,12 @@ public class User {
     /**
      * Contains all groups that the user has joined.
      */
-    private Map<String,Boolean> groups = new HashMap<>();
+    private Map<String,Object> groups = new HashMap<>();
 
     /**
      * Contains all groups that the user has joined.
      */
-    private Map<String,Boolean> events = new HashMap<>();
+    private Map<String,Object> events = new HashMap<>();
 
     /**
      * Empty Class constructor. (Needed for Firebase)
@@ -93,7 +93,7 @@ public class User {
      *
      * @return      the group map.
      */
-    public Map<String, Boolean> getGroups() {
+    public Map<String,Object> getGroups() {
         return new HashMap<>(groups);
     }
 
@@ -109,7 +109,7 @@ public class User {
      *
      * @return      the event map.
      */
-    public Map<String, Boolean> getEvents() {
+    public Map<String,Object> getEvents() {
         return new HashMap<>(events);
     }
 
