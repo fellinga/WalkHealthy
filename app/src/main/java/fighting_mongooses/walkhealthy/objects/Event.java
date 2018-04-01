@@ -135,7 +135,7 @@ public class Event {
         attendees.put(userId, true);
     }
 
-    /**
+    /**l
      * Method to get all attendees the event has.
      *
      * @return      the attendees map.

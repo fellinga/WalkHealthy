@@ -37,11 +37,6 @@ public class Group {
     private Map<String,Object> events = new HashMap<>();
 
     /**
-     * Map contains the location data for the main base of operations for the group
-     */
-    private Map<String,Object> location = new HashMap<>();
-
-    /**
      * Empty Class constructor. (Needed for Firebase)
      */
     public Group() {
@@ -123,24 +118,4 @@ public class Group {
     public Map<String,Object> getEvents() {
         return new HashMap<>(events);
     }
-
-    public void addLocation(Place place){
-        location.put("lat", place.getLatLng().latitude);
-        location.put("lng", place.getLatLng().longitude);
-    }
-
-    public Map<String,Object> getLocation() {
-        return new HashMap<>(location);
-    }
-
-    @Exclude
-    public double getLatitude(){
-        return (double)location.get("lng");
-    }
-
-    @Exclude
-    public double getLongitude(){
-        return (double)location.get("lat");
-    }
-
 }

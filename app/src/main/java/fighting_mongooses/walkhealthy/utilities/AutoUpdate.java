@@ -31,7 +31,7 @@ import fighting_mongooses.walkhealthy.R;
 public class AutoUpdate {
 
     private Context context;
-    private final String versionNumber  = "0.2.4";
+    private final String versionNumber  = "0.2.6";
     private final String apkName        = "WalkHealthy.apk";
     private final String serverUrl      = "https://www.fellinga.at/walkhealthy/";
     private final String onlineApkUrl   = serverUrl + apkName;
@@ -48,7 +48,7 @@ public class AutoUpdate {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("Update available!");
                 builder.setCancelable(false);
-                builder.setIcon(R.drawable.ic_account_circle_black_24dp);
+                builder.setIcon(R.drawable.ic_system_update_black_24dp);
                 builder.setMessage("Install now?");
                 builder.setNegativeButton("NO",
                         new DialogInterface.OnClickListener() {

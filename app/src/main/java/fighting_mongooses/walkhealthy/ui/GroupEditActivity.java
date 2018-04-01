@@ -15,6 +15,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -233,7 +235,16 @@ public class GroupEditActivity extends AppCompatActivity {
         if(groupName != null && !groupName.isEmpty() && mainPlace != null){
             // TODO: Verify this information as valid by adding some more functionality to the VerificationTools class
             group.setName(groupName);
-            group.addLocation(mainPlace);
+
+            // Create location object
+            DatabaseTools.getGeoFire().setLocation(groupName,
+                    new GeoLocation(mainPlace.getLatLng().latitude, mainPlace.getLatLng().longitude),
+                    new GeoFire.CompletionListener() {
+                        @Override
+                        public void onComplete(String key, DatabaseError error) {
+                            // listener needed
+                        }
+                    });
         }
 
         // remove all users from the database who got removed (only edit)

@@ -3,6 +3,7 @@ package fighting_mongooses.walkhealthy.utilities;
 import android.content.Context;
 import android.net.Uri;
 
+import com.firebase.geofire.GeoFire;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -39,6 +40,7 @@ public final class DatabaseTools {
     public static final String USERS_PATH = "users";
     public static final String GROUPS_PATH = "groups";
     public static final String EVENTS_PATH = "events";
+    public static final String GEOFIRE_PATH = "locations";
     public static final String ALL_USERS_GROUP = "allusers";
     public static final String USER_PROFILE_PIC = "profilePics";
 
@@ -76,7 +78,12 @@ public final class DatabaseTools {
      * Specific reference to the EVENTS key in the firebase database.
      */
     private static final DatabaseReference dbEventsRef = mDatabase.getReference().child(EVENTS_PATH);
-    
+
+    /**
+     * The geoFire object to create or get locations.
+     */
+    private static final GeoFire geoFire = new GeoFire(mDatabase.getReference().child(GEOFIRE_PATH));
+
     //////////////////////////////////////////////
     // GETTERS  //////////////////////////////////
     //////////////////////////////////////////////
@@ -124,6 +131,13 @@ public final class DatabaseTools {
      * @return    The events reference.
      */
     public static DatabaseReference getDbEventsReference() { return dbEventsRef; }
+
+    /**
+     * Return the geoFire object to create or get locations.
+     *
+     * @return    The geoFire object.
+     */
+    public static GeoFire getGeoFire() { return geoFire; }
 
     //////////////////////////////////////////////
     // USER METHODS///////////////////////////////
