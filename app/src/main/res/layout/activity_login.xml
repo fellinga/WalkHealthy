@@ -19,9 +19,9 @@ android:padding="10dp" >
     <ImageView
         android:id="@+id/logo_temp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="265dp"
         android:contentDescription="@string/app_name"
-        android:src="@drawable/dummylogo"/>
+        android:src="@drawable/logo_alpha" />
     <EditText
         android:id="@+id/email"
         android:layout_width="fill_parent"
