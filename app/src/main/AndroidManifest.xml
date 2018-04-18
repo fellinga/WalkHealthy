@@ -16,7 +16,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAd7BceEsvWIL_TvQO1DIYIo1Zf4mZu2N4" />
@@ -24,13 +23,12 @@
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="fighting_mongooses.walkhealthy.fileprovider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths" />
         </provider>
-
 
         <activity
             android:name=".ui.LoginActivity"
@@ -66,6 +64,10 @@
         <activity
             android:name=".ui.EventEditActivity"
             android:label="New Event" />
+        <activity
+            android:name=".ui.MessagingActivity"
+            android:label="@string/title_activity_messaging"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
 </manifest>

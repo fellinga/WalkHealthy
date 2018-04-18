@@ -57,7 +57,6 @@ public class EventActivity extends AppCompatActivity {
     private Event event;
     private String eventId;
     private Toolbar toolbar;
-    private MapView mapView;
     private TextView eventInfo;
     private Button attendEvent, notAttendEvent, removeUserEvent;
 
@@ -221,10 +220,16 @@ public class EventActivity extends AppCompatActivity {
                 finish();
                 return true;
 
+            case R.id.action_messages:
+                Intent intent = new Intent(EventActivity.this, MessagingActivity.class);
+                intent.putExtra(MessagingActivity.KEY_EXTRA, "event" + eventId);
+                startActivityForResult(intent, 0);
+                return true;
+
             case R.id.action_editEvent:
-                Intent intent = new Intent(EventActivity.this, EventEditActivity.class);
-                intent.putExtra(EventEditActivity.KEY_EXTRA, "eventId" + eventId);
-                startActivity(intent);
+                Intent editIntent = new Intent(EventActivity.this, EventEditActivity.class);
+                editIntent.putExtra(EventEditActivity.KEY_EXTRA, "eventId" + eventId);
+                startActivity(editIntent);
                 return true;
 
             case R.id.action_deleteEvent:

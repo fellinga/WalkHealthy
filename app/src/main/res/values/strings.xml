@@ -40,4 +40,5 @@
     <string name="headGrpInvite">ALL USERS</string>
     <string name="headGrpCurrent">ADDED USERS</string>
     <string name="todo">- TODO</string>
+    <string name="title_activity_messaging">Messages</string>
 </resources>

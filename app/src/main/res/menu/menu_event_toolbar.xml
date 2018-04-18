@@ -2,6 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
+        android:id="@+id/action_messages"
+        android:icon="@drawable/ic_message_black_24dp"
+        android:title="Messages"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_editEvent"
         android:icon="@android:drawable/ic_menu_preferences"
         android:title="Edit Event"

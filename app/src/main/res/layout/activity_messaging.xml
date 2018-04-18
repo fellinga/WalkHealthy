@@ -1,0 +1,73 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/etsu_blue"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="fighting_mongooses.walkhealthy.ui.MainActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/etsu_gold"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+    <ScrollView
+        android:id = "@+id/scrollHistory"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:fillViewport="true"
+        android:layout_above="@+id/chat_layout"
+        android:clickable="false"
+        android:contextClickable="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/messagesRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipChildren="false" />
+
+            </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:id="@+id/chat_layout"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/chat_input"
+            android:layout_height="40dp"
+            android:inputType="text"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:imeOptions="actionSend"
+            android:hint="Enter message here..."/>
+
+        <Button
+            android:id="@+id/send"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:drawableEnd="@drawable/ic_send_black_24dp"
+            android:contextClickable="false"
+            android:clickable="true"
+            android:focusable="true"/>
+    </LinearLayout>
+
+
+</RelativeLayout>

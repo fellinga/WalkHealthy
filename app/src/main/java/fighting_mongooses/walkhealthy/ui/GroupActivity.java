@@ -258,6 +258,12 @@ public class GroupActivity extends AppCompatActivity {
                 finish();
                 return true;
 
+            case R.id.action_messages:
+                Intent intent = new Intent(GroupActivity.this, MessagingActivity.class);
+                intent.putExtra(MessagingActivity.KEY_EXTRA, "group" + groupName);
+                startActivityForResult(intent, 0);
+                return true;
+
             case R.id.action_leavegrp:
                 if (isCurrentUserAdmin()) {
                     Toast.makeText(GroupActivity.this, "You can not leave your own group.", Toast.LENGTH_SHORT).show();
@@ -270,9 +276,9 @@ public class GroupActivity extends AppCompatActivity {
 
             case R.id.action_editgrp:
                 if (isCurrentUserAdmin()) {
-                    Intent intent = new Intent(GroupActivity.this, GroupEditActivity.class);
-                    intent.putExtra(GroupEditActivity.KEY_EXTRA, groupName);
-                    startActivityForResult(intent, 0);
+                    Intent editIntent = new Intent(GroupActivity.this, GroupEditActivity.class);
+                    editIntent.putExtra(GroupEditActivity.KEY_EXTRA, groupName);
+                    startActivityForResult(editIntent, 0);
                 } else {
                     Toast.makeText(GroupActivity.this, "Insufficient permissions.", Toast.LENGTH_SHORT).show();
                 }
