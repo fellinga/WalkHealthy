@@ -22,9 +22,9 @@ public class Group {
     private String name;
 
     /**
-     * The groups administrator.
+     * Map contains all admins of this group.
      */
-    private String admin;
+    private Map<String,Object> admins = new HashMap<>();
 
     /**
      * Map contains all members of this group.
@@ -40,16 +40,7 @@ public class Group {
      * Empty Class constructor. (Needed for Firebase)
      */
     public Group() {
-        // DO NOT USE
-    }
 
-    /**
-     * Class constructor.
-     */
-    public Group(String admin) {
-        this.name = "Group";
-        this.admin = admin;
-        addMember(admin);
     }
 
     /**
@@ -71,12 +62,27 @@ public class Group {
     }
 
     /**
-     * Getter for groups administrator.
-     *
-     * @return      The groups administrator
+     * Method to add one or more admins
+     * to the group.
      */
-    public String getAdmin() {
-        return admin;
+    public void addAdmin(String userId) {
+        admins.put(userId, true);
+    }
+
+    /**
+     * Method to add members to the group.
+     */
+    public void removeAdmin(String userId) {
+        admins.remove(userId);
+    }
+
+    /**
+     * Method to get all members the group has.
+     *
+     * @return      the members map.
+     */
+    public Map<String,Object> getAdmins() {
+        return new HashMap<>(admins);
     }
 
     /**

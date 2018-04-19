@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -36,6 +37,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
+import java.util.Map;
 
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.adapter.ViewHolder;
@@ -205,6 +207,18 @@ public class EventActivity extends AppCompatActivity {
                 .setNegativeButton(android.R.string.no, null).show();
     }
 
+    /**
+     * Checks if the current user is group admin.
+     */
+    private boolean isCurrentUserAdmin() {
+        for (Map.Entry<String, Object> entry : event.getAdmins().entrySet()) {
+            if (entry.getKey().equals(DatabaseTools.getCurrentUsersUid())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -227,13 +241,21 @@ public class EventActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_editEvent:
-                Intent editIntent = new Intent(EventActivity.this, EventEditActivity.class);
-                editIntent.putExtra(EventEditActivity.KEY_EXTRA, "eventId" + eventId);
-                startActivity(editIntent);
+                if (isCurrentUserAdmin()) {
+                    Intent editIntent = new Intent(EventActivity.this, EventEditActivity.class);
+                    editIntent.putExtra(EventEditActivity.KEY_EXTRA, "eventId" + eventId);
+                    startActivity(editIntent);
+                } else {
+                    Toast.makeText(EventActivity.this, "Insufficient permissions.", Toast.LENGTH_SHORT).show();
+                }
                 return true;
 
             case R.id.action_deleteEvent:
-                deleteEvent();
+                if (isCurrentUserAdmin()) {
+                    deleteEvent();
+                } else {
+                    Toast.makeText(EventActivity.this, "Insufficient permissions.", Toast.LENGTH_SHORT).show();
+                }
                 return true;
 
             default:

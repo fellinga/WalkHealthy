@@ -43,6 +43,11 @@ public class Event {
     private Map<String,Object> route = new HashMap<>();
 
     /**
+     * Map contains all admins of this event.
+     */
+    private Map<String,Object> admins = new HashMap<>();
+
+    /**
      * Map contains all attendees of this event.
      */
     private Map<String,Object> attendees = new HashMap<>();
@@ -51,17 +56,7 @@ public class Event {
      * Empty Class constructor. (Needed for Firebase)
      */
     public Event() {
-        // DO NOT USE
-    }
 
-    /**
-     * Class constructor.
-     */
-    public Event(String ownerGroup, String name, long startTime, int intensity) {
-        this.ownerGroup = ownerGroup;
-        this.name = name;
-        this.startTime = startTime;
-        this.intensity = intensity;
     }
 
     /**
@@ -126,6 +121,29 @@ public class Event {
      */
     public void setIntensity(int intensity) {
         this.intensity = intensity;
+    }
+
+    /**
+     * Method to add admins to the group.
+     */
+    public void addAdmin(String userId) {
+        admins.put(userId, true);
+    }
+
+    /**
+     * Method to add members to the group.
+     */
+    public void removeAdmin(String userId) {
+        admins.remove(userId);
+    }
+
+    /**
+     * Method to get all admins of the event has.
+     *
+     * @return      the admins map.
+     */
+    public Map<String, Object> getAdmins() {
+        return new HashMap<>(admins);
     }
 
     /**

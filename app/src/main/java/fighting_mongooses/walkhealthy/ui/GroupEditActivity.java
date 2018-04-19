@@ -80,7 +80,8 @@ public class GroupEditActivity extends AppCompatActivity {
             fetchGroupData(getIntent().getStringExtra(KEY_EXTRA));
         } else {
             getSupportActionBar().setTitle("New group");
-            group = new Group(DatabaseTools.getCurrentUsersUid());
+            group = new Group();
+            group.addAdmin(DatabaseTools.getCurrentUsersUid());
         }
 
         mainLocBtn.setOnClickListener(new View.OnClickListener() {

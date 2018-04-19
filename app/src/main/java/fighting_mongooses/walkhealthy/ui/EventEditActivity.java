@@ -87,6 +87,7 @@ public class EventEditActivity extends AppCompatActivity {
             } else {
                 getSupportActionBar().setTitle("New event");
                 event = new Event();
+                event.addAdmin(DatabaseTools.getCurrentUsersUid());
                 event.setOwnerGroup(getIntent().getStringExtra(KEY_EXTRA));
                 setCheckBoxes(0);
             }

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +25,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
+import java.util.Map;
 
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.adapter.ViewHolder;
@@ -239,7 +241,12 @@ public class GroupActivity extends AppCompatActivity {
      * Checks if the current user is group admin.
      */
     private boolean isCurrentUserAdmin() {
-        return DatabaseTools.getCurrentUsersUid().equals(group.getAdmin());
+        for (Map.Entry<String, Object> entry : group.getAdmins().entrySet()) {
+            if (entry.getKey().equals(DatabaseTools.getCurrentUsersUid())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Menu icons are inflated just as they were with actionbar

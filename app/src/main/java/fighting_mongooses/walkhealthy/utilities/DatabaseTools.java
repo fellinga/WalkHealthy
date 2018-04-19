@@ -238,16 +238,6 @@ public final class DatabaseTools {
     }
 
     /**
-     * Changes an existing groups administrator.
-     *
-     * @param userId    The groups new administrator.
-     * @param groupName The group name where we want the change.
-     */
-    public static void changeGroupAdmin(final String userId, final String groupName) {
-        dbGroupsRef.child(groupName).child("admin").setValue(userId);
-    }
-
-    /**
      * Adds an existing user to an existing group. Both -
      * the user and the group reference are getting updated.
      *
@@ -307,6 +297,14 @@ public final class DatabaseTools {
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 });
+
+        // REMOVE GROUP LOCATION
+        geoFire.removeLocation(groupName, new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+                // NO NEED TO WAIT, BUT LISTENER NEEDED
+            }
+        });
 
         // REMOVE ACTUAL GROUP
         dbGroupsRef.child(groupName).removeValue();
