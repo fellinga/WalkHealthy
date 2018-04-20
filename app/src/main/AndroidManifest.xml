@@ -50,7 +50,7 @@
             android:label="Settings"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ui.NewUserActivity"
+            android:name=".ui.WelcomeActivity"
             android:label="@string/title_activity_newuser" />
         <activity
             android:name=".ui.GroupActivity"

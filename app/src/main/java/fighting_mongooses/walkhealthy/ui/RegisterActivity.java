@@ -143,7 +143,7 @@ public class RegisterActivity extends Activity {
                             DatabaseTools.updateCurrentUser(new User(username, birthday));
                             DatabaseTools.addUserToGroup(DatabaseTools.getCurrentUsersUid(), DatabaseTools.ALL_USERS_GROUP);
                             DatabaseTools.getFirebaseAuth().getCurrentUser().sendEmailVerification();
-                            openNewUserActivity();
+                            openWelcomeActivity();
                         } else {
                             // If sign in fails, display a message to the user.
                             Toast.makeText(RegisterActivity.this, "Authentication failed.",
@@ -166,8 +166,8 @@ public class RegisterActivity extends Activity {
      * This method forwards the user to the
      * new user activity.
      */
-    private void openNewUserActivity() {
-        startActivity(new Intent(this , NewUserActivity.class));
+    private void openWelcomeActivity() {
+        startActivity(new Intent(this , WelcomeActivity.class));
         finish();
     }
 

@@ -41,4 +41,22 @@
     <string name="headGrpCurrent">ADDED USERS</string>
     <string name="todo">- TODO</string>
     <string name="title_activity_messaging">Messages</string>
+
+    // STRINGS FOR SLIDER
+    <string name="next">NEXT</string>
+    <string name="skip">SKIP</string>
+    <string name="start">GOT IT</string>
+
+    <string name="slide_1_title">Start walking!</string>
+    <string name="slide_1_desc">WalkHealthy encourages daily cardio exercise!</string>
+
+    <string name="slide_2_title">Do it together!</string>
+    <string name="slide_2_desc">Join walking groups or create your own!</string>
+
+    <string name="slide_3_title">Plan your walks!</string>
+    <string name="slide_3_desc">Map your route, set your date and go!</string>
+
+    <string name="slide_4_title">Connect with local walkers!</string>
+    <string name="slide_4_desc">We make it easy to find groups near you!</string>
+
 </resources>
