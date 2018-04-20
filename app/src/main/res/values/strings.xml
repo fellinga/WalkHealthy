@@ -54,9 +54,9 @@
     <string name="slide_2_desc">Join walking groups or create your own!</string>
 
     <string name="slide_3_title">Plan your walks!</string>
-    <string name="slide_3_desc">Map your route, set your date and go!</string>
+    <string name="slide_3_desc">Map your route, set your date and start walking!</string>
 
-    <string name="slide_4_title">Connect with local walkers!</string>
+    <string name="slide_4_title">Connect with locals!</string>
     <string name="slide_4_desc">We make it easy to find groups near you!</string>
 
 </resources>
