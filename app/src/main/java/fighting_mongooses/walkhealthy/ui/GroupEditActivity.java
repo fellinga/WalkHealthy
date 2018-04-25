@@ -33,7 +33,6 @@ import java.util.Map;
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.objects.Group;
 import fighting_mongooses.walkhealthy.objects.User;
-import fighting_mongooses.walkhealthy.utilities.AutoUpdate;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 
 /**
@@ -53,7 +52,6 @@ public class GroupEditActivity extends AppCompatActivity {
     private List<String> groupMember = new ArrayList<>();
     private List<String> removedUsers = new ArrayList<>();
     private List<String> groupAdmins = new ArrayList<>();
-    private List<String> removedAdmins = new ArrayList<>();
     private Button mainLocBtn;
     private Place mainPlace;
 
@@ -162,7 +160,7 @@ public class GroupEditActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             final User user = dataSnapshot.getValue(User.class);
                             if (user != null) {
-                                addAdminToGroupAdmins(entry.getKey(), user.getUsername());
+                                addUserToGroupAdmins(entry.getKey(), user.getUsername());
                             }
                         }
 
@@ -204,7 +202,7 @@ public class GroupEditActivity extends AppCompatActivity {
                     builder.setPositiveButton("ADMIN",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    addAdminToGroupAdmins(uid, username);
+                                    addUserToGroupAdmins(uid, username);
                                 }
                             });
                     builder.show();
@@ -217,12 +215,12 @@ public class GroupEditActivity extends AppCompatActivity {
     }
 
     /**
-     * Add an user from the admins list
+     * Add an user to the admins list
      *
      * @param uid      User ID number
      * @param username Users username
      */
-    private void addAdminToGroupAdmins(final String uid, final String username) {
+    private void addUserToGroupAdmins(final String uid, final String username) {
         if (!groupAdmins.contains(uid)) {
             group.addAdmin(uid);
             groupAdmins.add(uid);
@@ -270,7 +268,6 @@ public class GroupEditActivity extends AppCompatActivity {
      */
     private void removeUserFromAdmins(final String uid, final String username) {
         if (!DatabaseTools.getCurrentUsersUid().equals(uid)) {
-            removedAdmins.add(uid);
             for (int i = 0; i < adminsLayout.getChildCount(); i++) {
                 TableRow tr = (TableRow) adminsLayout.getChildAt(i);
                 TextView tv = (TextView) tr.getChildAt(0);

@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -22,10 +24,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 import fighting_mongooses.walkhealthy.R;
 import fighting_mongooses.walkhealthy.objects.Event;
+import fighting_mongooses.walkhealthy.objects.Group;
+import fighting_mongooses.walkhealthy.objects.User;
 import fighting_mongooses.walkhealthy.utilities.DatabaseTools;
 
 /**
@@ -43,6 +50,9 @@ public class EventEditActivity extends AppCompatActivity {
 
     private Event event;
     private String eventId;
+    private Group group;
+    private List<String> groupAdmins = new ArrayList<>();
+    private TableLayout adminsLayout, memberLayout;
     private EditText inputEventName;
     private CheckBox checkLow, checkMed, checkHigh;
     private DatePicker datePicker;
@@ -67,6 +77,9 @@ public class EventEditActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_black_24dp);
         }
+
+        memberLayout = findViewById(R.id.memberLayout);
+        adminsLayout = findViewById(R.id.adminsLayout);
 
         startLocBtn = findViewById(R.id.startLocBtn);
         endLocBtn = findViewById(R.id.endLocBtn);
@@ -139,11 +152,39 @@ public class EventEditActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         event = dataSnapshot.getValue(Event.class);
                         if (event != null) {
+                            fetchGroupData();
                             inputEventName.setText(event.getName());
                             setCheckBoxes(event.getIntensity());
                             setStartPlace(event.getRouteLocation(0));
                             setEndPlace(event.getRouteLocation(1));
                             setDateTime();
+                        } else {
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    /**
+     * Load existing group members if
+     * group gets edited (name change not
+     * supported right now)
+     */
+    private void fetchGroupData() {
+        // LOAD GROUP OBJECT
+        DatabaseTools.getDbGroupsReference().child(event.getOwnerGroup()).
+                addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        group = dataSnapshot.getValue(Group.class);
+                        if (group != null) {
+                            fetchMembers();
+                            fetchAdmins();
                         } else {
                             finish();
                         }
@@ -232,6 +273,110 @@ public class EventEditActivity extends AppCompatActivity {
             default: checkLow.setChecked(true);
                 checkMed.setChecked(false);
                 checkHigh.setChecked(false);
+        }
+    }
+
+    /**
+     * Gets all group members and adds them
+     * to the members lists.
+     */
+    private void fetchMembers() {
+        for (final Map.Entry<String,Object> entry : group.getMembers().entrySet()) {
+            DatabaseTools.getDbUsersReference().child(entry.getKey())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(final DataSnapshot dataSnapshot) {
+                            final User user = dataSnapshot.getValue(User.class);
+                            if (user != null) {
+                                TableRow tr = new TableRow(EventEditActivity.this);
+                                TextView tv = new TextView(EventEditActivity.this);
+                                tv.setText(user.getUsername());
+                                tr.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        addUserToAdmins(dataSnapshot.getKey(), user.getUsername());
+                                    }
+
+                                });
+                                tr.addView(tv);
+                                memberLayout.addView(tr);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+        }
+    }
+
+    /**
+     * Gets all event admins and adds them
+     * to the admins lists.
+     */
+    private void fetchAdmins() {
+        for (final Map.Entry<String,Object> entry : event.getAdmins().entrySet()) {
+            DatabaseTools.getDbUsersReference().child(entry.getKey())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            final User user = dataSnapshot.getValue(User.class);
+                            if (user != null) {
+                                addUserToAdmins(entry.getKey(), user.getUsername());
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+        }
+    }
+
+    /**
+     * Add an user to the admins list
+     *
+     * @param uid      User ID number
+     * @param username Users username
+     */
+    private void addUserToAdmins(final String uid, final String username) {
+        if (!groupAdmins.contains(uid)) {
+            groupAdmins.add(uid);
+            event.addAdmin(uid);
+            TableRow tr = new TableRow(EventEditActivity.this);
+            TextView tv = new TextView(EventEditActivity.this);
+            tv.setText(username);
+            tr.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    removeUserFromAdmins(uid, username);
+                }
+
+            });
+            tr.addView(tv);
+            adminsLayout.addView(tr);
+        }
+    }
+
+    /**
+     * Removes an user from the admins list
+     *
+     * @param uid      User ID number
+     * @param username Users username
+     */
+    private void removeUserFromAdmins(final String uid, final String username) {
+        if (!DatabaseTools.getCurrentUsersUid().equals(uid)) {
+            for (int i = 0; i < adminsLayout.getChildCount(); i++) {
+                TableRow tr = (TableRow) adminsLayout.getChildAt(i);
+                TextView tv = (TextView) tr.getChildAt(0);
+                if (tv.getText().toString().equals(username)) {
+                    event.removeAdmin(uid);
+                    groupAdmins.remove(uid);
+                    adminsLayout.removeViewAt(i);
+                }
+            }
         }
     }
 
