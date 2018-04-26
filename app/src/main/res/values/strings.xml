@@ -36,10 +36,11 @@
     <string name="headMainAllGroups">ALL GROUPS</string>
     <string name="headGroupEvents">EVENTS</string>
     <string name="headGrpMember">GROUP MEMBERS</string>
+    <string name="headGrpAdmins">GROUP ADMINS</string>
     <string name="headGrpName">GROUP NAME</string>
     <string name="headGrpInvite">ALL USERS</string>
-    <string name="headGrpCurrent">GROUP MEMBERS</string>
-    <string name="headGrpAdmins">GROUP ADMINS</string>
+    <string name="headEventMember">EVENT MEMBERS</string>
+    <string name="headEventAdmins">EVENT ADMINS</string>
 
     <string name="todo">- TODO</string>
     <string name="title_activity_messaging">Messages</string>

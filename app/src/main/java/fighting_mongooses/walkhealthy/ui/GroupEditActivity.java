@@ -255,6 +255,7 @@ public class GroupEditActivity extends AppCompatActivity {
                     group.removeMember(uid);
                     groupMember.remove(uid);
                     addeduserlayout.removeViewAt(i);
+                    removeUserFromAdmins(uid, username);
                 }
             }
         }

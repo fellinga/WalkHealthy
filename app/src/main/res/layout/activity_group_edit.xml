@@ -69,7 +69,7 @@
                     android:id="@+id/activeLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/headGrpCurrent"
+                    android:text="@string/headGrpMember"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
 

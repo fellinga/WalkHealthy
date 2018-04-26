@@ -31,7 +31,7 @@ import fighting_mongooses.walkhealthy.R;
 public class AutoUpdate {
 
     private Context context;
-    private final String versionNumber  = "0.3.4";
+    private final String versionNumber  = "0.4.0";
     private final String apkName        = "WalkHealthy.apk";
     private final String serverUrl      = "https://www.fellinga.at/walkhealthy/";
     private final String onlineApkUrl   = serverUrl + apkName;
